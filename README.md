@@ -1,8 +1,7 @@
 [![✗](https://img.shields.io/badge/Release-v0.2.0-ffb600.svg?style=for-the-badge)](https://github.com/agustin-golmar/Flex-Bison-Compiler/releases)
 
-# Compilador Flex/Bison
-
-Un compilador vacío de ejemplo construido con Flex y Bison.
+# ScriptScript
+Markdown dialogue scripting language
 
 ## Requerimientos
 
