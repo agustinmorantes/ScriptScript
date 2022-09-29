@@ -37,6 +37,12 @@
 
 %token <integer> INTEGER
 
+%token <token> OPEN_BLOCK
+%token <token> CLOSE_BLOCK
+%token <token> SPLIT_BLOCK
+
+%token <integer> TEXT
+
 // Tipos de dato para los no-terminales generados desde Bison.
 %type <program> program
 %type <expression> expression

@@ -30,7 +30,7 @@ alpha           [a-zA-Z]
 <COMMENT>{endline}							{ ; }
 <COMMENT>"*/"								{ EndCommentPatternAction(); BEGIN(INITIAL); }
 
-<BLOCK_BODY>"}"                             { BEGIN(INITIAL);    return CloseBlockPatternAction(yytext); }
+<BLOCK_BODY>"}"                             { BEGIN(INITIAL); return CloseBlockPatternAction(yytext); }
 <BLOCK_BODY>[^ \}]+                         { return TextPatternAction(yytext, yyleng); }
 
 "{"                                         { return OpenBlockPatternAction(yytext); }
