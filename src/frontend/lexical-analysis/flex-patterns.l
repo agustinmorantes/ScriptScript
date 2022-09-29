@@ -34,7 +34,8 @@ alpha           [a-zA-Z]
 <BLOCK_BODY>[^ \}]+                         { return TextPatternAction(yytext, yyleng); }
 
 "{"                                         { return OpenBlockPatternAction(yytext); }
-"---"                                       { BEGIN(BLOCK_BODY); return SplitBlockPatternAction(yytext); }
+"}"                                         { return CloseBlockPatternAction(yytext); }
+"---\n"                                     { BEGIN(BLOCK_BODY); return SplitBlockPatternAction(yytext); }
 
 
 
