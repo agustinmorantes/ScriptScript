@@ -79,3 +79,28 @@ void IgnoredPatternAction(const char * lexeme, const int length) {
 	LogDebug("IgnoredPatternAction: '%s' (length = %d).", lexeme, length);
 	// Como no debe hacer nada con el patrón, solo se loguea en consola.
 }
+
+token OpenBlockPatternAction(const char * lexeme) {
+	LogDebug("OpenBlockPatternAction: '%s'.", lexeme);
+	yylval.token = OPEN_BLOCK;
+	return OPEN_BLOCK;
+}
+
+token CloseBlockPatternAction(const char * lexeme) {
+	LogDebug("CloseBlockPatternAction: '%s'.", lexeme);
+	yylval.token = CLOSE_BLOCK;
+	return CLOSE_BLOCK;
+}
+
+token SplitBlockPatternAction(const char * lexeme) {
+	LogDebug("SplitBlockPatternAction: '%s'.", lexeme);
+	yylval.token = SPLIT_BLOCK;
+	return SPLIT_BLOCK;
+}
+
+token TextPatternAction(const char * lexeme, const int length) {
+	LogDebug("IntegerPatternAction: '%s' (length = %d).", lexeme, length);
+	//TODO: Guardar bien el texto
+	yylval.integer = length;
+	return TEXT;
+}

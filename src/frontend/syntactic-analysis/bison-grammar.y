@@ -37,6 +37,12 @@
 
 %token <integer> INTEGER
 
+%token <token> OPEN_BLOCK
+%token <token> CLOSE_BLOCK
+%token <token> SPLIT_BLOCK
+
+%token <integer> TEXT
+
 // Tipos de dato para los no-terminales generados desde Bison.
 %type <program> program
 %type <expression> expression
@@ -60,6 +66,7 @@ expression: expression[left] ADD expression[right]					{ $$ = AdditionExpression
 	| expression[left] MUL expression[right]						{ $$ = MultiplicationExpressionGrammarAction($left, $right); }
 	| expression[left] DIV expression[right]						{ $$ = DivisionExpressionGrammarAction($left, $right); }
 	| factor														{ $$ = FactorExpressionGrammarAction($1); }
+	| block															{ $$ = 0; }
 	;
 
 factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS				{ $$ = ExpressionFactorGrammarAction($2); }
@@ -69,4 +76,7 @@ factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS				{ $$ = ExpressionFactor
 constant: INTEGER													{ $$ = IntegerConstantGrammarAction($1); }
 	;
 
+block: OPEN_BLOCK CLOSE_BLOCK										{ printf("Empty block\n"); }
+	|  OPEN_BLOCK SPLIT_BLOCK CLOSE_BLOCK							{ printf("Empty split block\n"); }
+	;
 %%

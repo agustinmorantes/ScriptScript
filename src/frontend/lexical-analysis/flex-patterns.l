@@ -15,11 +15,13 @@
 
 /* Contextos de Flex. */
 %x COMMENT
+%x BLOCK_BODY
 
 /* Patrones reutilizables. */
 digit			[0-9]
 endline			[\n]
 whitespace		[ \f\n\r\t\v]
+alpha           [a-zA-Z]
 
 %%
 
@@ -27,6 +29,15 @@ whitespace		[ \f\n\r\t\v]
 <COMMENT>.									{ ; }
 <COMMENT>{endline}							{ ; }
 <COMMENT>"*/"								{ EndCommentPatternAction(); BEGIN(INITIAL); }
+
+<BLOCK_BODY>"}"                             { BEGIN(INITIAL); return CloseBlockPatternAction(yytext); }
+<BLOCK_BODY>[^ \}]+                         { return TextPatternAction(yytext, yyleng); }
+
+"{"                                         { return OpenBlockPatternAction(yytext); }
+"}"                                         { return CloseBlockPatternAction(yytext); }
+"---\n"                                     { BEGIN(BLOCK_BODY); return SplitBlockPatternAction(yytext); }
+
+
 
 "+"											{ return AdditionOperatorPatternAction(yytext); }
 "-"											{ return SubtractionOperatorPatternAction(yytext); }
