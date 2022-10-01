@@ -22,6 +22,7 @@ digit			[0-9]
 endline			[\n]
 whitespace		[ \f\n\r\t\v]
 alpha           [a-zA-Z]
+alphanumeric    [{alpha}{digit}]
 
 %%
 
@@ -32,12 +33,14 @@ alpha           [a-zA-Z]
 
 <BLOCK_BODY>"}"                             { BEGIN(INITIAL); return CloseBlockPatternAction(yytext); }
 <BLOCK_BODY>[^ \}]+                         { return TextPatternAction(yytext, yyleng); }
+<BLOCK_BODY>.                               { ; }
 
 "{"                                         { return OpenBlockPatternAction(yytext); }
 "}"                                         { return CloseBlockPatternAction(yytext); }
 "---\n"                                     { BEGIN(BLOCK_BODY); return SplitBlockPatternAction(yytext); }
 
-
+{alpha}{alphanumeric}*                      { return IdentifierPatternAction(yytext, yyleng); }
+":"                                         { return ColonPatternAction(yytext); }
 
 "+"											{ return AdditionOperatorPatternAction(yytext); }
 "-"											{ return SubtractionOperatorPatternAction(yytext); }

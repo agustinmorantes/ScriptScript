@@ -104,3 +104,15 @@ token TextPatternAction(const char * lexeme, const int length) {
 	yylval.integer = length;
 	return TEXT;
 }
+
+token IdentifierPatternAction(const char * lexeme, const int length) {
+	LogDebug("IdentifierPatternAction", lexeme);
+	yylval.token = IDENTIFIER;
+	return IDENTIFIER;
+}
+
+token ColonPatternAction(const char * lexeme) {
+	LogDebug("ColonPatternAction", lexeme);
+	yylval.token = COLON;
+	return COLON;
+}

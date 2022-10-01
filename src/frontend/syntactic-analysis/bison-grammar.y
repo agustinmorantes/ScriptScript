@@ -41,6 +41,9 @@
 %token <token> CLOSE_BLOCK
 %token <token> SPLIT_BLOCK
 
+%token <token> COLON
+%token <token> IDENTIFIER
+
 %token <integer> TEXT
 
 // Tipos de dato para los no-terminales generados desde Bison.
@@ -77,6 +80,22 @@ constant: INTEGER													{ $$ = IntegerConstantGrammarAction($1); }
 	;
 
 block: OPEN_BLOCK CLOSE_BLOCK										{ printf("Empty block\n"); }
-	|  OPEN_BLOCK SPLIT_BLOCK CLOSE_BLOCK							{ printf("Empty split block\n"); }
+	|  OPEN_BLOCK header SPLIT_BLOCK body CLOSE_BLOCK				{ printf("Block\n"); }
 	;
+	
+header: %empty														{ printf("Header\n"); }
+	| header_item header											{ printf("Header item\n"); }
+	;
+
+header_item: IDENTIFIER COLON expression 							{ ; }
+	;
+
+body: %empty														{ printf("Empty body\n"); }
+	| text															{ printf("Body with text\n"); }
+	;
+
+text: TEXT															{ ; }
+	| TEXT text														{ ; }
+	;
+
 %%
