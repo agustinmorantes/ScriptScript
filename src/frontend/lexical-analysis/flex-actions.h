@@ -31,6 +31,17 @@ token IntegerPatternAction(const char * lexeme, const int length);
 token MultiplicationOperatorPatternAction(const char * lexeme);
 token OpenParenthesisPatternAction(const char * lexeme);
 token SubtractionOperatorPatternAction(const char * lexeme);
+token ModulusOperatorPatternAction(const char * lexeme);
+
+token IsKeywordPatternAction(const char* lexeme); 
+token NotKeywordPatternAction(const char* lexeme);
+token AndKeywordPatternAction(const char* lexeme);
+token OrKeywordPatternAction(const char* lexeme); 
+
+token LessThanOperatorPatternAction(const char* lexeme);
+token LessThanOrEqualOperatorPatternAction(const char* lexeme);
+token GreaterThanOperatorPatternAction(const char* lexeme);
+token GreaterThanOrEqualOperatorPatternAction(const char* lexeme);
 
 token OpenBlockPatternAction(const char * lexeme);
 token CloseBlockPatternAction(const char * lexeme);

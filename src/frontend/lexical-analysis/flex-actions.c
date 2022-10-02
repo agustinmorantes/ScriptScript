@@ -104,3 +104,58 @@ token TextPatternAction(const char * lexeme, const int length) {
 	yylval.integer = length;
 	return TEXT;
 }
+
+token ModulusOperatorPatternAction(const char * lexeme) {
+	LogDebug("ModulusOperatorPatternAction: '%s'.", lexeme);
+	yylval.token = MOD;
+	return MOD;
+}
+
+token IsKeywordPatternAction(const char* lexeme) {
+	LogDebug("IsKeywordPatternAction: '%s'.", lexeme);
+	yylval.token = IS;
+	return IS;
+}
+
+token NotKeywordPatternAction(const char* lexeme) {
+	LogDebug("NotKeywordPatternAction: '%s'.", lexeme);
+	yylval.token = NOT;
+	return NOT;
+}
+
+token AndKeywordPatternAction(const char* lexeme) {
+	LogDebug("AndKeywordPatternAction: '%s'.", lexeme);
+	yylval.token = AND;
+	return AND;
+}
+
+token OrKeywordPatternAction(const char* lexeme) {
+	LogDebug("OrKeywordPatternAction: '%s'.", lexeme);
+	yylval.token = OR;
+	return OR;
+}
+
+token LessThanOperatorPatternAction(const char* lexeme) {
+	LogDebug("LessThanOperatorPatternAction: '%s'.", lexeme);
+	yylval.token = LESS_THAN;
+	return LESS_THAN;
+}
+
+token LessThanOrEqualOperatorPatternAction(const char* lexeme) {
+	LogDebug("LessThanOrEqualOperatorPatternAction: '%s'.", lexeme);
+	yylval.token = LESS_OR_EQUAL;
+	return LESS_OR_EQUAL;
+}
+
+token GreaterThanOperatorPatternAction(const char* lexeme) {
+	LogDebug("GreaterThanOperatorPatternAction: '%s'.", lexeme);
+	yylval.token = GREATER_THAN;
+	return GREATER_THAN;
+}
+
+token GreaterThanOrEqualOperatorPatternAction(const char* lexeme) {
+	LogDebug("GreaterThanOrEqualOperatorPatternAction: '%s'.", lexeme);
+	yylval.token = GREATER_OR_EQUAL;
+	return GREATER_OR_EQUAL;
+}
+
