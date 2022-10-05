@@ -69,9 +69,20 @@ identifier      {alpha}{alphanumeric}*
 "-"											{ return SubtractionOperatorPatternAction(yytext); }
 "*"											{ return MultiplicationOperatorPatternAction(yytext); }
 "/"											{ return DivisionOperatorPatternAction(yytext); }
+"%"                                         { return ModulusOperatorPatternAction(yytext); }
 
 "("											{ return OpenParenthesisPatternAction(yytext); }
 ")"											{ return CloseParenthesisPatternAction(yytext); }
+
+"is"                                        { return IsKeywordPatternAction(yytext); }
+"not"                                       { return NotKeywordPatternAction(yytext); }
+"and"                                       { return AndKeywordPatternAction(yytext); }
+"or"                                        { return OrKeywordPatternAction(yytext); }
+
+"<"                                         { return LessThanOperatorPatternAction(yytext); }
+"<="                                        { return LessThanOrEqualOperatorPatternAction(yytext); }
+">"                                         { return GreaterThanOperatorPatternAction(yytext); }
+">="                                        { return GreaterThanOrEqualOperatorPatternAction(yytext); }
 
 {digit}+									{ return IntegerPatternAction(yytext, yyleng); }
 (true|false)                                { return BoolPatternAction(yytext, yyleng); }
