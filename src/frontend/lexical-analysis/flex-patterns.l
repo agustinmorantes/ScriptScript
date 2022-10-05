@@ -22,7 +22,7 @@ digit			[0-9]
 endline			[\n]
 whitespace		[ \f\n\r\t\v]
 alpha           [a-zA-Z]
-al_dig          [a-zA-Z0-9]
+alphanumeric    [{alpha}{digit}]
 
 %%
 
@@ -34,15 +34,26 @@ al_dig          [a-zA-Z0-9]
 "{"											{ return OpenBlockPatternAction(yytext); }
 <BLOCK_BODY>"}"								{ BEGIN(INITIAL); return CloseBlockPatternAction(yytext); }
 "---\n"										{ BEGIN(BLOCK_BODY); return SplitBlockPatternAction(yytext); }
-<BLOCK_BODY>${alpha}{al_dig}*				{ return VariablePatternAction(yytext) }
+<BLOCK_BODY>${alpha}{alphanumeric}*				{ return VariablePatternAction(yytext) }
 <BLOCK_BODY>\n@ {alphaDigit}*:				{ return BeginForkAnswerPatternAction(yytext, yyleng) }
 <BLOCK_BODY>"\n"							{ return NewlinePatternAction(yytext); }
-<BLOCK_BODY>\[{al_dig}*:?{al_dig}*\]\(		{ return BeginTagPatternAction(yytext, yyleng) }
+<BLOCK_BODY>\[{alphanumeric}*:?{alphanumeric}*\]\(		{ return BeginTagPatternAction(yytext, yyleng) }
 <BLOCK_BODY>")"								{ return EndTagPatternAction(yytext) }
 <BLOCK_BODY>\*								{ return BoldPatternAction(yytext, yyleng) }
 <BLOCK_BODY>\*\*							{ return ItalicPatternAction(yytext, yyleng) }
 <BLOCK_BODY>==							    { return HighlightPatternAction(yytext, yyleng) }
 <BLOCK_BODY>[^\}]+							{ return TextPatternAction(yytext, yyleng); }
+
+<BLOCK_BODY>"}"                             { BEGIN(INITIAL); return CloseBlockPatternAction(yytext); }
+<BLOCK_BODY>[^ \}]+                         { return TextPatternAction(yytext, yyleng); }
+<BLOCK_BODY>.                               { ; }
+
+"{"                                         { return OpenBlockPatternAction(yytext); }
+"}"                                         { return CloseBlockPatternAction(yytext); }
+"---\n"                                     { BEGIN(BLOCK_BODY); return SplitBlockPatternAction(yytext); }
+
+{alpha}{alphanumeric}*                      { return IdentifierPatternAction(yytext, yyleng); }
+":"                                         { return ColonPatternAction(yytext); }
 
 "+"											{ return AdditionOperatorPatternAction(yytext); }
 "-"											{ return SubtractionOperatorPatternAction(yytext); }
