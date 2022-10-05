@@ -24,6 +24,8 @@
 	// Terminales.
 	token token;
 	int integer;
+	int boolean;
+	char character;
 }
 
 // IDs y tipos de los tokens terminales generados desde Flex.
@@ -45,14 +47,28 @@
 
 %token <token> OPEN_PARENTHESIS
 %token <token> CLOSE_PARENTHESIS
+%token <token> ENDL
+%token <token> FORK
+%token <token> BOLD
+%token <token> ITALIC
+%token <token> BEGIN_TAG
+%token <token> CLOSE_TAG
+%token <token> BEGIN_STRING
+%token <token> END_STRING
+%token <token> INTERP_VAR
 
-%token <integer> INTEGER
 
 %token <token> OPEN_BLOCK
 %token <token> CLOSE_BLOCK
 %token <token> SPLIT_BLOCK
 
-%token <integer> TEXT
+%token <token> COLON
+%token <token> IDENTIFIER
+
+%token <integer> INTEGER
+%token <boolean> BOOL
+%token <character> STRING_TEXT
+%token <character> TEXT
 
 // Tipos de dato para los no-terminales generados desde Bison.
 %type <program> program
@@ -106,6 +122,22 @@ constant: INTEGER													{ $$ = IntegerConstantGrammarAction($1); }
 	;
 
 block: OPEN_BLOCK CLOSE_BLOCK										{ printf("Empty block\n"); }
-	|  OPEN_BLOCK SPLIT_BLOCK CLOSE_BLOCK							{ printf("Empty split block\n"); }
+	|  OPEN_BLOCK header SPLIT_BLOCK body CLOSE_BLOCK				{ printf("Block\n"); }
 	;
+	
+header: %empty														{ printf("Header\n"); }
+	| header_item header											{ printf("Header item\n"); }
+	;
+
+header_item: IDENTIFIER COLON expression 							{ ; }
+	;
+
+body: %empty														{ printf("Empty body\n"); }
+	| text															{ printf("Body with text\n"); }
+	;
+
+text: TEXT															{ ; }
+	| TEXT text														{ ; }
+	;
+
 %%

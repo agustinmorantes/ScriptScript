@@ -43,11 +43,27 @@ token LessThanOrEqualOperatorPatternAction(const char* lexeme);
 token GreaterThanOperatorPatternAction(const char* lexeme);
 token GreaterThanOrEqualOperatorPatternAction(const char* lexeme);
 
+token BoolPatternAction(const char * lexeme, const int length);
+
 token OpenBlockPatternAction(const char * lexeme);
 token CloseBlockPatternAction(const char * lexeme);
 token SplitBlockPatternAction(const char * lexeme);
-token TextPatternAction(const char * lexeme, const int length);
+token IdentifierPatternAction(const char * lexeme, const int length);
+token ColonPatternAction(const char * lexeme);
 
+token TextCharacterPatternAction(const char * lexeme, const int length);
+token InterpVariablePatternAction(const char * lexeme, const int length); 
+token EndlinePatternAction(const char * lexeme);
+token BeginForkPatternAction(const char * lexeme);
+token BoldPatternAction(const char * lexeme);
+token ItalicPatternAction(const char * lexeme);
+
+token StringCharacterPatternAction(const char * lexeme, const int length);
+token BeginStringPatternAction(const char * lexeme);
+token EndStringPatternAction(const char * lexeme);
+
+token BeginTagPatternAction(const char * lexeme);
+token CloseTagPatternAction(const char * lexeme);
 
 // Patrón desconocido, permite abortar debido a un error de sintaxis.
 token UnknownPatternAction(const char * lexeme, const int length);

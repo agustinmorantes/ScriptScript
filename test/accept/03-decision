@@ -1,0 +1,30 @@
+{
+id: start
+next: decision1
+---
+# Personaje 1
+Hola $playerName, ¿cómo andas?
+}
+
+{
+id: decision1
+output: variable1
+next: bloqueBien if $variable1 is “bien” else bloqueMal
+---
+@ “bien”: Bien, ¿y vos?
+@ “mal” : No muy bien
+}
+
+{
+id: bloqueMal
+---
+# Personaje 1
+Uhh, ¿Qué pasó?
+}
+
+{
+id: bloqueBien
+---
+# Personaje 1
+¡Muy bien!
+}

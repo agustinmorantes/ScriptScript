@@ -1,0 +1,12 @@
+{
+id: start
+---
+# Personaje 1
+Hola $playerName!
+
+$wait(2)
+
+# Personaje 2
+Hola!
+}
+

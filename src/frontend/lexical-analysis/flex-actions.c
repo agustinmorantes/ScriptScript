@@ -98,10 +98,23 @@ token SplitBlockPatternAction(const char * lexeme) {
 	return SPLIT_BLOCK;
 }
 
-token TextPatternAction(const char * lexeme, const int length) {
-	LogDebug("IntegerPatternAction: '%s' (length = %d).", lexeme, length);
+token IdentifierPatternAction(const char * lexeme, const int length) {
+	LogDebug("IdentifierPatternAction", lexeme);
+	yylval.token = IDENTIFIER;
+	return IDENTIFIER;
+}
+
+token ColonPatternAction(const char * lexeme) {
+	LogDebug("ColonPatternAction", lexeme);
+	yylval.token = COLON;
+	return COLON;
+}
+
+token TextCharacterPatternAction(const char * lexeme, const int length) {
+	char c = length == 1 ? lexeme[0] : lexeme[1];
+	LogDebug("%c", c);
 	//TODO: Guardar bien el texto
-	yylval.integer = length;
+	yylval.character = length;
 	return TEXT;
 }
 
@@ -159,3 +172,71 @@ token GreaterThanOrEqualOperatorPatternAction(const char* lexeme) {
 	return GREATER_OR_EQUAL;
 }
 
+token InterpVariablePatternAction(const char * lexeme, const int length) {
+	LogDebug("InterpVariablePatternAction", &lexeme[1]);
+	//TODO: Guardar bien el texto
+	yylval.token = INTERP_VAR;
+	return INTERP_VAR;
+}
+
+token EndlinePatternAction(const char * lexeme) {
+	LogDebug("EndlinePatternAction", lexeme);
+	yylval.token = ENDL;
+	return ENDL;
+}
+
+token BeginForkPatternAction(const char * lexeme) {
+	LogDebug("BeginForkPatternAction", lexeme);
+	yylval.token = FORK;
+	return FORK;
+}
+
+token BoldPatternAction(const char * lexeme) {
+	LogDebug("BoldPatternAction", lexeme);
+	yylval.token = BOLD;
+	return BOLD;
+}
+
+token ItalicPatternAction(const char * lexeme) {
+	LogDebug("ItalicPatternAction", lexeme);
+	yylval.token = ITALIC;
+	return ITALIC;
+}
+
+token StringCharacterPatternAction(const char * lexeme, const int length) {
+	char c = length == 1 ? lexeme[0] : lexeme[1];
+	LogDebug("%c", c);
+	yylval.character = c;
+	return STRING_TEXT;
+}
+
+token BeginStringPatternAction(const char * lexeme) {
+	LogDebug("BeginStringPatternAction", lexeme);
+	yylval.token = BEGIN_STRING;
+	return BEGIN_STRING;
+}
+
+token EndStringPatternAction(const char * lexeme) {
+	LogDebug("EndStringPatternAction", lexeme);
+	yylval.token = END_STRING;
+	return END_STRING;
+}
+
+token BeginTagPatternAction(const char * lexeme) {
+	LogDebug("BeginTagPatternAction", lexeme);
+	yylval.token = BEGIN_TAG;
+	return BEGIN_TAG;
+}
+
+token CloseTagPatternAction(const char * lexeme) {
+	LogDebug("CloseTagPatternAction", lexeme);
+	yylval.token = CLOSE_TAG;
+	return CLOSE_TAG;
+}
+
+token BoolPatternAction(const char * lexeme, const int length) {
+	int val = length == 4 ? 1 : 0;
+	LogDebug("BoolPatternAction: %d", val);
+	yylval.boolean = val;
+	return BOOL;
+}
