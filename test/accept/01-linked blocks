@@ -1,0 +1,22 @@
+{
+id: start
+next: bloque2
+---
+# Personaje 1
+Hola $nombreP2, ¿cómo andas?
+}
+
+{
+id: bloque2
+next: bloque3
+---
+# Personaje 2
+Bien, ¿y vos?
+}
+
+{
+id: bloque3
+---
+# Personaje 1
+Muy bien!
+}
