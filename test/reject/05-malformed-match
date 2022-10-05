@@ -1,0 +1,7 @@
+{
+id: start
+tag1: match $player
+        when true then "player"
+        default "other"
+        when false "npc"
+}

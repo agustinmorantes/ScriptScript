@@ -1,0 +1,6 @@
+{
+id:start
+---
+${ trigger1() trigger2() }
+${ 1 2 }
+}
