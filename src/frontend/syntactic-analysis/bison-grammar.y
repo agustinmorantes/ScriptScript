@@ -24,6 +24,8 @@
 	// Terminales.
 	token token;
 	int integer;
+	int boolean;
+	char character;
 }
 
 // IDs y tipos de los tokens terminales generados desde Flex.
@@ -34,8 +36,16 @@
 
 %token <token> OPEN_PARENTHESIS
 %token <token> CLOSE_PARENTHESIS
+%token <token> ENDL
+%token <token> FORK
+%token <token> BOLD
+%token <token> ITALIC
+%token <token> BEGIN_TAG
+%token <token> CLOSE_TAG
+%token <token> BEGIN_STRING
+%token <token> END_STRING
+%token <token> INTERP_VAR
 
-%token <integer> INTEGER
 
 %token <token> OPEN_BLOCK
 %token <token> CLOSE_BLOCK
@@ -44,7 +54,10 @@
 %token <token> COLON
 %token <token> IDENTIFIER
 
-%token <integer> TEXT
+%token <integer> INTEGER
+%token <boolean> BOOL
+%token <character> STRING_TEXT
+%token <character> TEXT
 
 // Tipos de dato para los no-terminales generados desde Bison.
 %type <program> program

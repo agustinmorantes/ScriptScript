@@ -15,32 +15,55 @@
 
 /* Contextos de Flex. */
 %x COMMENT
-%x BLOCK_BODY
+%x BODY
+%x STRING
+
+%s FORK
 
 /* Patrones reutilizables. */
-digit			[0-9]
 endline			[\n]
 whitespace		[ \f\n\r\t\v]
 alpha           [a-zA-Z]
+digit			[0-9]
 alphanumeric    [{alpha}{digit}]
+identifier      {alpha}{alphanumeric}*
 
 %%
 
 "/*"										{ BEGIN(COMMENT); BeginCommentPatternAction(); }
+<COMMENT>"*/"								{ EndCommentPatternAction(); BEGIN(INITIAL); }
 <COMMENT>.									{ ; }
 <COMMENT>{endline}							{ ; }
-<COMMENT>"*/"								{ EndCommentPatternAction(); BEGIN(INITIAL); }
 
-<BLOCK_BODY>"}"                             { BEGIN(INITIAL); return CloseBlockPatternAction(yytext); }
-<BLOCK_BODY>[^ \}]+                         { return TextPatternAction(yytext, yyleng); }
-<BLOCK_BODY>.                               { ; }
+
+<BODY>\\.							        { return TextCharacterPatternAction(yytext, yyleng); }
+<BODY>{endline}							    { return EndlinePatternAction(yytext); }
+<BODY>"}"								    { BEGIN(INITIAL); return CloseBlockPatternAction(yytext); }
+<BODY>"@"               				    { BEGIN(FORK); return BeginForkPatternAction(yytext); }
+<BODY>"["                                   { BEGIN(INITIAL); return BeginTagPatternAction(yytext); }
+<BODY>")"								    { return CloseParenthesisPatternAction(yytext); }
+<BODY>${identifier}          				{ return InterpVariablePatternAction(yytext,yyleng); }
+<BODY>"*"								    { return BoldPatternAction(yytext); }
+<BODY>"**"							        { return ItalicPatternAction(yytext); }
+<BODY>.                                     { return TextCharacterPatternAction(yytext, yyleng); }
+
+
+<FORK>":"                                   { BEGIN(BODY); return ColonPatternAction(yytext); }
+
+
+\"                                          { BEGIN(STRING); return BeginStringPatternAction(yytext); } 
+<STRING>\"                                  { BEGIN(INITIAL); return EndStringPatternAction(yytext); } 
+<STRING>\\.                                 { return StringCharacterPatternAction(yytext, yyleng); }
+<STRING>${identifier}                       { return InterpVariablePatternAction(yytext,yyleng); }
+<STRING>.                                   { return StringCharacterPatternAction(yytext, yyleng); }
+
 
 "{"                                         { return OpenBlockPatternAction(yytext); }
-"}"                                         { return CloseBlockPatternAction(yytext); }
-"---\n"                                     { BEGIN(BLOCK_BODY); return SplitBlockPatternAction(yytext); }
+"---\n"                                     { BEGIN(BODY); return SplitBlockPatternAction(yytext); }
 
-{alpha}{alphanumeric}*                      { return IdentifierPatternAction(yytext, yyleng); }
 ":"                                         { return ColonPatternAction(yytext); }
+
+"]"                                         { BEGIN(BODY); return CloseTagPatternAction(yytext); }
 
 "+"											{ return AdditionOperatorPatternAction(yytext); }
 "-"											{ return SubtractionOperatorPatternAction(yytext); }
@@ -51,6 +74,8 @@ alphanumeric    [{alpha}{digit}]
 ")"											{ return CloseParenthesisPatternAction(yytext); }
 
 {digit}+									{ return IntegerPatternAction(yytext, yyleng); }
+(true|false)                                { return BoolPatternAction(yytext, yyleng); }
+{identifier}                                { return IdentifierPatternAction(yytext, yyleng); }
 
 {whitespace}								{ IgnoredPatternAction(yytext, yyleng); }
 
