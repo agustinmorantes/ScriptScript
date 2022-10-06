@@ -179,12 +179,6 @@ token InterpVariablePatternAction(const char * lexeme, const int length) {
 	return INTERP_VAR;
 }
 
-token EndlinePatternAction(const char * lexeme) {
-	LogDebug("EndlinePatternAction", lexeme);
-	yylval.token = ENDL;
-	return ENDL;
-}
-
 token BeginForkPatternAction(const char * lexeme) {
 	LogDebug("BeginForkPatternAction", lexeme);
 	yylval.token = FORK;

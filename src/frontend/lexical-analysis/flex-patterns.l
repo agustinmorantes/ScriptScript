@@ -37,7 +37,6 @@ identifier      {alpha}{alphanumeric}*
 
 
 <BODY>\\.							        { return TextCharacterPatternAction(yytext, yyleng); }
-<BODY>{endline}							    { return EndlinePatternAction(yytext); }
 <BODY>"}"								    { BEGIN(INITIAL); return CloseBlockPatternAction(yytext); }
 <BODY>"@"               				    { BEGIN(FORK); return BeginForkPatternAction(yytext); }
 <BODY>"["                                   { BEGIN(INITIAL); return BeginTagPatternAction(yytext); }
@@ -74,10 +73,10 @@ identifier      {alpha}{alphanumeric}*
 "("											{ return OpenParenthesisPatternAction(yytext); }
 ")"											{ return CloseParenthesisPatternAction(yytext); }
 
-"is"                                        { return IsKeywordPatternAction(yytext); }
-"not"                                       { return NotKeywordPatternAction(yytext); }
-"and"                                       { return AndKeywordPatternAction(yytext); }
-"or"                                        { return OrKeywordPatternAction(yytext); }
+is                                          { return IsKeywordPatternAction(yytext); }
+not                                         { return NotKeywordPatternAction(yytext); }
+and                                         { return AndKeywordPatternAction(yytext); }
+or                                          { return OrKeywordPatternAction(yytext); }
 
 "<"                                         { return LessThanOperatorPatternAction(yytext); }
 "<="                                        { return LessThanOrEqualOperatorPatternAction(yytext); }

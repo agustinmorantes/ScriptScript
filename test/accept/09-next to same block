@@ -1,0 +1,24 @@
+{
+id: start
+next: bloqueUno
+---
+# Personaje 1
+Hola, ¿cómo andás?
+}
+
+{
+id: bloqueUno
+---
+# Personaje 2
+Bien, ¿y vos?
+# Personaje 1
+Muy bien!
+}
+
+{
+id: bloqueDos
+next: bloqueUno
+---
+# Personaje 1
+¿Qué tal?
+}
