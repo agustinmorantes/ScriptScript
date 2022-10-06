@@ -15,7 +15,7 @@
  * Bison utilizará el token retornado en el punto (2) para matchear dicho
  * terminal en la gramática. Por otro lado, el valor almacenado en "yylval" es
  * el que Bison proveerá como valor semántico al realizar una reducción
- * (mediante $1, $2, $3, etc.).
+ * (mediante $1, $2, $3, etc.).y
  */
 
 void BeginCommentPatternAction() {
@@ -99,7 +99,7 @@ token SplitBlockPatternAction(const char * lexeme) {
 }
 
 token IdentifierPatternAction(const char * lexeme, const int length) {
-	LogDebug("IdentifierPatternAction", lexeme);
+	LogDebug("IdentifierPatternAction: '%s' (length = %d)", lexeme, length);
 	yylval.token = IDENTIFIER;
 	return IDENTIFIER;
 }
@@ -111,8 +111,7 @@ token ColonPatternAction(const char * lexeme) {
 }
 
 token TextCharacterPatternAction(const char * lexeme, const int length) {
-	char c = length == 1 ? lexeme[0] : lexeme[1];
-	LogDebug("%c", c);
+	LogDebug("%s", lexeme);
 	//TODO: Guardar bien el texto
 	yylval.character = length;
 	return TEXT;
@@ -148,6 +147,42 @@ token OrKeywordPatternAction(const char* lexeme) {
 	return OR;
 }
 
+token IfKeywordPatternAction(const char * lexeme) {
+	LogDebug("IfKeywordPatternAction: '%s'.", lexeme);
+	yylval.token = IF;
+	return IF;
+}
+
+token ElseKeywordPatternAction(const char * lexeme) {
+	LogDebug("ElseKeywordPatternAction: '%s'.", lexeme);
+	yylval.token = ELSE;
+	return ELSE;
+}
+
+token MatchKeywordPatternAction(const char * lexeme) {
+	LogDebug("MatchKeywordPatternAction: '%s'.", lexeme);
+	yylval.token = MATCH;
+	return MATCH;
+}
+
+token WhenKeywordPatternAction(const char * lexeme) {
+	LogDebug("WhenKeywordPatternAction: '%s'.", lexeme);
+	yylval.token = WHEN;
+	return WHEN;
+}
+
+token ThenKeywordPatternAction(const char * lexeme) {
+	LogDebug("ThenKeywordPatternAction: '%s'.", lexeme);
+	yylval.token = THEN;
+	return THEN;
+}
+
+token DefaultKeywordPatternAction(const char * lexeme) {
+	LogDebug("DefaultPatternAction: '%s'.", lexeme);
+	yylval.token = DEFAULT;
+	return DEFAULT;
+}
+
 token LessThanOperatorPatternAction(const char* lexeme) {
 	LogDebug("LessThanOperatorPatternAction: '%s'.", lexeme);
 	yylval.token = LESS_THAN;
@@ -173,7 +208,7 @@ token GreaterThanOrEqualOperatorPatternAction(const char* lexeme) {
 }
 
 token InterpVariablePatternAction(const char * lexeme, const int length) {
-	LogDebug("InterpVariablePatternAction", &lexeme[1]);
+	LogDebug("InterpVariablePatternAction: '%s' (length = %d)", &lexeme[1], length-1);
 	//TODO: Guardar bien el texto
 	yylval.token = INTERP_VAR;
 	return INTERP_VAR;
@@ -198,9 +233,8 @@ token ItalicPatternAction(const char * lexeme) {
 }
 
 token StringCharacterPatternAction(const char * lexeme, const int length) {
-	char c = length == 1 ? lexeme[0] : lexeme[1];
-	LogDebug("%c", c);
-	yylval.character = c;
+	LogDebug("%s", lexeme);
+	yylval.character = length;
 	return STRING_TEXT;
 }
 

@@ -35,11 +35,21 @@
 %token <token> DIV
 %token <token> MOD
 
+// Logic tokens
 %token <token> AND
 %token <token> OR
 %token <token> NOT
 %token <token> IS
 
+// Conditional tokens
+%token <token> IF
+%token <token> ELSE
+%token <token> MATCH
+%token <token> WHEN
+%token <token> THEN
+%token <token> DEFAULT
+
+// Comparation tokens
 %token <token> LESS_THAN
 %token <token> GREATER_THAN
 %token <token> LESS_OR_EQUAL
@@ -70,10 +80,11 @@
 %token <character> TEXT
 
 // Tipos de dato para los no-terminales generados desde Bison.
-/* %type <program> program
-%type <expression> expression
-%type <factor> factor */
-/* %type <constant> constant */
+%type <program> program
+
+/* %type <expression> expression
+%type <factor> factor
+%type <constant> constant */
 
 // Reglas de asociatividad y precedencia (de menor a mayor).
 %left ADD SUB
@@ -89,64 +100,69 @@
 
 %%
 
-program: block		
-	| block program	
+program: block			{ $$ = ProgramGrammarAction(0); }
+	| block program		{ $$ = ProgramGrammarAction(0); }
 	;
 
-block: OPEN_BLOCK header SPLIT_BLOCK body CLOSE_BLOCK				{ printf("Block\n"); }
+block: OPEN_BLOCK header SPLIT_BLOCK body CLOSE_BLOCK				{ printf("block\n"); }
 	;
 
-header: %empty														{ printf("Header\n"); }
-	| header_item header											{ printf("Header item\n"); }
+header: %empty														{ printf("header\n"); }
+	| header_item header											{ printf("header_item\n"); }
 	;
 
-header_item: IDENTIFIER COLON value
+header_item: IDENTIFIER COLON value_with_conditional
 	;
 
-body: %empty														{ printf("Empty body\n"); }
-	| text body														{ printf("body_text\n"); }
-	| fork body														{ printf("body_fork\n"); }
+body: %empty														{ printf("body\n"); }
+	| text body
+	| fork body
 	;
 
 fork: FORK value COLON text
 	;
 
-text: TEXT
-	| INTERP_VAR text
-	| BOLD text BOLD
+text: BOLD text BOLD
 	| ITALIC text ITALIC
 	| tagged_text
+	| INTERP_VAR
+	| trigger
+	| TEXT
 	;
 
-tagged_text: BEGIN_TAG IDENTIFIER COLON value CLOSE_TAG OPEN_PARENTHESIS text CLOSE_PARENTHESIS
+tagged_text: BEGIN_TAG IDENTIFIER COLON value_with_conditional CLOSE_TAG OPEN_PARENTHESIS text CLOSE_PARENTHESIS
 	| BEGIN_TAG IDENTIFIER CLOSE_TAG OPEN_PARENTHESIS text CLOSE_PARENTHESIS
 	;
 
-arith_expression: arith_expression[left] ADD arith_expression[right]
-	| arith_expression[left] SUB arith_expression[right]
-	| arith_expression[left] MUL arith_expression[right]
-	| arith_expression[left] DIV arith_expression[right]
-	| arith_expression[left] MOD arith_expression[right]
+expression: expression[left] ADD expression[right]
+	| expression[left] SUB expression[right]
+	| expression[left] MUL expression[right]
+	| expression[left] DIV expression[right]
+	| expression[left] MOD expression[right]
+	| expression[left] IS expression[right]
+	| expression[left] LESS_THAN expression[right]
+	| expression[left] GREATER_THAN expression[right]
+	| expression[left] LESS_OR_EQUAL expression[right]
+	| expression[left] GREATER_OR_EQUAL expression[right]
+	| expression[left] AND expression[right]
+	| expression[left] OR expression[right]
+	| NOT expression
 	| factor
 	;
 
-logical_expression: logical_expression[left] AND logical_expression[right]
-	| logical_expression[left] OR logical_expression[right]
-	| NOT logical_expression
-	| value[left] IS value[right]
-	| value[left] LESS_THAN value[right]
-	| value[left] GREATER_THAN value[right]
-	| value[left] LESS_OR_EQUAL value[right]
-	| value[left] GREATER_OR_EQUAL value[right]
-	| logical_factor
+factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS
+	| value
 	;
 
-logical_factor: OPEN_PARENTHESIS logical_expression CLOSE_PARENTHESIS
-	| BOOL
-    | IDENTIFIER
+conditional: value IF expression ELSE value				
+	| MATCH IDENTIFIER when_then DEFAULT value						
 	;
 
-factor: OPEN_PARENTHESIS arith_expression CLOSE_PARENTHESIS
+when_then: %empty
+	| WHEN constant THEN value when_then													
+	;
+
+value_with_conditional: conditional
 	| value
 	;
 
@@ -164,5 +180,12 @@ string: BEGIN_STRING string
 constant: INTEGER
 	| BOOL
 	;
+
+trigger: INTERP_VAR OPEN_PARENTHESIS trigger_parameters CLOSE_PARENTHESIS
+	;
+
+trigger_parameters: %empty
+	| expression
+	; 
 
 %%

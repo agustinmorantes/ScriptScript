@@ -2,6 +2,7 @@
 
 #include "flex-actions.h"
 
+int return_to = 0;
 %}
 
 /* Obliga a crear una regla explícita para manejar lexemas desconocidos. */
@@ -22,10 +23,10 @@
 
 /* Patrones reutilizables. */
 endline			[\n]
-whitespace		[ \f\n\r\t\v]
+whitespace		[\ \f\n\r\t\v]
 alpha           [a-zA-Z]
 digit			[0-9]
-alphanumeric    [{alpha}{digit}]
+alphanumeric    [a-zA-Z0-9]
 identifier      {alpha}{alphanumeric}*
 
 %%
@@ -38,27 +39,30 @@ identifier      {alpha}{alphanumeric}*
 
 <BODY>\\.							        { return TextCharacterPatternAction(yytext, yyleng); }
 <BODY>"}"								    { BEGIN(INITIAL); return CloseBlockPatternAction(yytext); }
-<BODY>"@"               				    { BEGIN(FORK); return BeginForkPatternAction(yytext); }
+<BODY>"@"               				    { return_to = FORK; BEGIN(FORK); return BeginForkPatternAction(yytext); }
 <BODY>"["                                   { BEGIN(INITIAL); return BeginTagPatternAction(yytext); }
+<BODY>"("									{ return OpenParenthesisPatternAction(yytext); }
 <BODY>")"								    { return CloseParenthesisPatternAction(yytext); }
-<BODY>${identifier}          				{ return InterpVariablePatternAction(yytext,yyleng); }
+<BODY>\${identifier}          				{ return InterpVariablePatternAction(yytext,yyleng); }
 <BODY>"*"								    { return BoldPatternAction(yytext); }
 <BODY>"**"							        { return ItalicPatternAction(yytext); }
-<BODY>.                                     { return TextCharacterPatternAction(yytext, yyleng); }
+<BODY>[^}@\[\(\)\$\*\\]*                    { return TextCharacterPatternAction(yytext, yyleng); }
+<BODY>.                                     { return UnknownPatternAction(yytext, yyleng); }
 
 
-<FORK>":"                                   { BEGIN(BODY); return ColonPatternAction(yytext); }
+<FORK>":"                                   { return_to = INITIAL; BEGIN(BODY); return ColonPatternAction(yytext); }
 
 
 \"                                          { BEGIN(STRING); return BeginStringPatternAction(yytext); } 
-<STRING>\"                                  { BEGIN(INITIAL); return EndStringPatternAction(yytext); } 
+<STRING>\"                                  { BEGIN(return_to); return EndStringPatternAction(yytext); } 
 <STRING>\\.                                 { return StringCharacterPatternAction(yytext, yyleng); }
-<STRING>${identifier}                       { return InterpVariablePatternAction(yytext,yyleng); }
-<STRING>.                                   { return StringCharacterPatternAction(yytext, yyleng); }
-
+<STRING>\${identifier}                      { return InterpVariablePatternAction(yytext,yyleng); }
+<STRING>[^\"\n\$\\]*                          { return StringCharacterPatternAction(yytext, yyleng); }
+<STRING>.                                   { return UnknownPatternAction(yytext, yyleng); }
+<STRING>{endline}                           { return UnknownPatternAction(yytext, yyleng); }
 
 "{"                                         { return OpenBlockPatternAction(yytext); }
-"---\n"                                     { BEGIN(BODY); return SplitBlockPatternAction(yytext); }
+---\n                                     { BEGIN(BODY); return SplitBlockPatternAction(yytext); }
 
 ":"                                         { return ColonPatternAction(yytext); }
 
@@ -73,19 +77,26 @@ identifier      {alpha}{alphanumeric}*
 "("											{ return OpenParenthesisPatternAction(yytext); }
 ")"											{ return CloseParenthesisPatternAction(yytext); }
 
-is                                          { return IsKeywordPatternAction(yytext); }
-not                                         { return NotKeywordPatternAction(yytext); }
-and                                         { return AndKeywordPatternAction(yytext); }
-or                                          { return OrKeywordPatternAction(yytext); }
+"is"                                          { return IsKeywordPatternAction(yytext); }
+"not"                                         { return NotKeywordPatternAction(yytext); }
+"and"                                         { return AndKeywordPatternAction(yytext); }
+"or"                                          { return OrKeywordPatternAction(yytext); }
+
+"if"										{ return IfKeywordPatternAction(yytext); }
+"else"										{ return ElseKeywordPatternAction(yytext); }
+"match"										{ return MatchKeywordPatternAction(yytext); }
+"when"										{ return WhenKeywordPatternAction(yytext); }
+"then"										{ return ThenKeywordPatternAction(yytext); }
+"default"								    { return DefaultKeywordPatternAction(yytext); }
+
+("true"|"false")                            { return BoolPatternAction(yytext, yyleng); }
+{digit}+									{ return IntegerPatternAction(yytext, yyleng); }
+{identifier}                                { return IdentifierPatternAction(yytext, yyleng); }
 
 "<"                                         { return LessThanOperatorPatternAction(yytext); }
 "<="                                        { return LessThanOrEqualOperatorPatternAction(yytext); }
 ">"                                         { return GreaterThanOperatorPatternAction(yytext); }
 ">="                                        { return GreaterThanOrEqualOperatorPatternAction(yytext); }
-
-{digit}+									{ return IntegerPatternAction(yytext, yyleng); }
-(true|false)                                { return BoolPatternAction(yytext, yyleng); }
-{identifier}                                { return IdentifierPatternAction(yytext, yyleng); }
 
 {whitespace}								{ IgnoredPatternAction(yytext, yyleng); }
 

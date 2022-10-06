@@ -9,10 +9,10 @@ Hola $playerName, ¿cómo andas?
 {
 id: decision1
 output: variable1
-next: bloqueBien if $variable1 is “bien” else bloqueMal
+next: bloqueBien if variable1 is "bien" else bloqueMal
 ---
-@ “bien”: Bien, ¿y vos?
-@ “mal” : No muy bien
+@ "bien": Bien, ¿y vos?
+@ "mal" : No muy bien
 }
 
 {

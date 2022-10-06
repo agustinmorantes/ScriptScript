@@ -1,6 +1,6 @@
 {
 id: start
-next: bloqueBien if moodP2 is “good” else bloqueMal
+next: bloqueBien if moodP2 is "good" else bloqueMal
 ---
 # Personaje 1
 Hola, ¿cómo andás?

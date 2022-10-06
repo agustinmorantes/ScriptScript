@@ -1,6 +1,6 @@
 {
 id: start
-next: bloqueBien if $p1IsOK else bloqueMal
+next: bloqueBien if p1IsOK else bloqueMal
 ---
 }
 

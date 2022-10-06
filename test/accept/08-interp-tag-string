@@ -1,0 +1,7 @@
+{
+id: start
+---
+${"Adiós" if interactionIsStopped else "Espero verte..."}
+}
+
+/*actualmente esta funcionalidad no esta implementada*/
