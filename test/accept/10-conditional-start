@@ -1,0 +1,23 @@
+{
+id: start
+next: bloqueBien if p1IsOK else bloqueMal
+---
+}
+
+{
+id: bloqueBien
+---
+# Personaje 1
+Buen día
+# Personaje 2
+Es cierto!
+}
+
+{
+id: bloqueMal
+---
+# Personaje 1
+Qué bajón.
+# Personaje 2
+Estás bien?
+}

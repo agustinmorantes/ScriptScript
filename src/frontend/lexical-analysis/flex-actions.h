@@ -38,6 +38,13 @@ token NotKeywordPatternAction(const char* lexeme);
 token AndKeywordPatternAction(const char* lexeme);
 token OrKeywordPatternAction(const char* lexeme); 
 
+token IfKeywordPatternAction(const char * lexeme);
+token ElseKeywordPatternAction(const char * lexeme);
+token MatchKeywordPatternAction(const char * lexeme);
+token WhenKeywordPatternAction(const char * lexeme);
+token ThenKeywordPatternAction(const char * lexeme);
+token DefaultKeywordPatternAction(const char * lexeme);
+
 token LessThanOperatorPatternAction(const char* lexeme);
 token LessThanOrEqualOperatorPatternAction(const char* lexeme);
 token GreaterThanOperatorPatternAction(const char* lexeme);

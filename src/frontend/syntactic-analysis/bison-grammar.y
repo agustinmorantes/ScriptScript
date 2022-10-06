@@ -35,11 +35,21 @@
 %token <token> DIV
 %token <token> MOD
 
+// Logic tokens
 %token <token> AND
 %token <token> OR
 %token <token> NOT
 %token <token> IS
 
+// Conditional tokens
+%token <token> IF
+%token <token> ELSE
+%token <token> MATCH
+%token <token> WHEN
+%token <token> THEN
+%token <token> DEFAULT
+
+// Comparation tokens
 %token <token> LESS_THAN
 %token <token> GREATER_THAN
 %token <token> LESS_OR_EQUAL
@@ -47,7 +57,6 @@
 
 %token <token> OPEN_PARENTHESIS
 %token <token> CLOSE_PARENTHESIS
-%token <token> ENDL
 %token <token> FORK
 %token <token> BOLD
 %token <token> ITALIC
@@ -72,16 +81,18 @@
 
 // Tipos de dato para los no-terminales generados desde Bison.
 %type <program> program
-%type <expression> expression
+
+/* %type <expression> expression
 %type <factor> factor
-%type <constant> constant
+%type <constant> constant */
 
 // Reglas de asociatividad y precedencia (de menor a mayor).
 %left ADD SUB
-%left MUL DIV
+%left MUL DIV MOD
 
 %left AND OR
 %left NOT
+%left LESS_THAN GREATER_THAN LESS_OR_EQUAL GREATER_OR_EQUAL
 %left IS
 
 // El símbolo inicial de la gramatica.
@@ -89,55 +100,92 @@
 
 %%
 
-program: expression													{ $$ = ProgramGrammarAction($1); }
-	| boolean_expression											{ $$ = ProgramGrammarAction(0); }
+program: block			{ $$ = ProgramGrammarAction(0); }
+	| block program		{ $$ = ProgramGrammarAction(0); }
 	;
 
-boolean_expression: boolean_expression[left] IS boolean_expression[right]			{ printf("is; "); }
-	| boolean_expression[left] AND boolean_expression[right]						{ printf("and; ");  }
-	| boolean_expression[left] OR boolean_expression[right]							{ printf("or; ");  }
-	| NOT boolean_expression														{ printf("not; ");  }
-	| relational_expression
+block: OPEN_BLOCK header SPLIT_BLOCK body CLOSE_BLOCK				{ printf("block\n"); }
 	;
 
-relational_expression: expression[left] LESS_THAN expression[right]	{ printf("%d < %d; ", $left, $right); }
-	| expression[left] GREATER_THAN expression[right]				{ printf("%d > %d; ", $left, $right); }
-	| expression[left] LESS_OR_EQUAL expression[right]				{ printf("%d <= %d; ", $left, $right); }
-	| expression[left] GREATER_OR_EQUAL expression[right]			{ printf("%d >= %d; ", $left, $right); }
+header: %empty														{ printf("header\n"); }
+	| header_item header											{ printf("header_item\n"); }
 	;
 
-expression: expression[left] ADD expression[right]					{ $$ = AdditionExpressionGrammarAction($left, $right); }
-	| expression[left] SUB expression[right]						{ $$ = SubtractionExpressionGrammarAction($left, $right); }
-	| expression[left] MUL expression[right]						{ $$ = MultiplicationExpressionGrammarAction($left, $right); }
-	| expression[left] DIV expression[right]						{ $$ = DivisionExpressionGrammarAction($left, $right); }
-	| factor														{ $$ = FactorExpressionGrammarAction($1); }
-	| block															{ $$ = 0; }
+header_item: IDENTIFIER COLON value_with_conditional
 	;
 
-factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS				{ $$ = ExpressionFactorGrammarAction($2); }
-	| constant														{ $$ = ConstantFactorGrammarAction($1); }
+body: %empty														{ printf("body\n"); }
+	| text body
+	| fork body
 	;
 
-constant: INTEGER													{ $$ = IntegerConstantGrammarAction($1); }
+fork: FORK value COLON text
 	;
 
-block: OPEN_BLOCK CLOSE_BLOCK										{ printf("Empty block\n"); }
-	|  OPEN_BLOCK header SPLIT_BLOCK body CLOSE_BLOCK				{ printf("Block\n"); }
-	;
-	
-header: %empty														{ printf("Header\n"); }
-	| header_item header											{ printf("Header item\n"); }
-	;
-
-header_item: IDENTIFIER COLON expression 							{ ; }
+text: BOLD text BOLD
+	| ITALIC text ITALIC
+	| tagged_text
+	| INTERP_VAR
+	| trigger
+	| TEXT
 	;
 
-body: %empty														{ printf("Empty body\n"); }
-	| text															{ printf("Body with text\n"); }
+tagged_text: BEGIN_TAG IDENTIFIER COLON value_with_conditional CLOSE_TAG OPEN_PARENTHESIS text CLOSE_PARENTHESIS
+	| BEGIN_TAG IDENTIFIER CLOSE_TAG OPEN_PARENTHESIS text CLOSE_PARENTHESIS
 	;
 
-text: TEXT															{ ; }
-	| TEXT text														{ ; }
+expression: expression[left] ADD expression[right]
+	| expression[left] SUB expression[right]
+	| expression[left] MUL expression[right]
+	| expression[left] DIV expression[right]
+	| expression[left] MOD expression[right]
+	| expression[left] IS expression[right]
+	| expression[left] LESS_THAN expression[right]
+	| expression[left] GREATER_THAN expression[right]
+	| expression[left] LESS_OR_EQUAL expression[right]
+	| expression[left] GREATER_OR_EQUAL expression[right]
+	| expression[left] AND expression[right]
+	| expression[left] OR expression[right]
+	| NOT expression
+	| factor
 	;
+
+factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS
+	| value
+	;
+
+conditional: value IF expression ELSE value				
+	| MATCH IDENTIFIER when_then DEFAULT value						
+	;
+
+when_then: %empty
+	| WHEN constant THEN value when_then													
+	;
+
+value_with_conditional: conditional
+	| value
+	;
+
+value: constant
+	| IDENTIFIER
+	| string
+	;
+
+string: BEGIN_STRING string
+	| INTERP_VAR string
+	| STRING_TEXT string
+	| END_STRING
+	;
+
+constant: INTEGER
+	| BOOL
+	;
+
+trigger: INTERP_VAR OPEN_PARENTHESIS trigger_parameters CLOSE_PARENTHESIS
+	;
+
+trigger_parameters: %empty
+	| expression
+	; 
 
 %%
