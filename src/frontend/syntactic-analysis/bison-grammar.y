@@ -7,25 +7,29 @@
 // Tipos de dato utilizados en las variables semánticas ($$, $1, $2, etc.).
 %union {
 	// No-terminales (backend).
-	/*
-	Program program;
-	Expression expression;
-	Factor factor;
-	Constant constant;
-	...
-	*/
-
-	// No-terminales (frontend).
-	int program;
-	int expression;
-	int factor;
-	int constant;
+	Program* program;
+	Block* block;
+	Header* header;
+	Body* body;
+	Fork* fork;
+	Expression* expression;
+	Factor* factor;
+	Constant* constant;
+	Value* value;
+	ValOrCond* valOrCond;
+	Conditional* conditional;
+	WhenThen* whenThen;
+	Text* text;
+	TaggedText* taggedText;
+	String* stringStruct;
+	Trigger* trigger;
+	TriggerParameters* triggerParameters;
 
 	// Terminales.
 	token token;
 	int integer;
 	int boolean;
-	char character;
+	char* string;
 }
 
 // IDs y tipos de los tokens terminales generados desde Flex.
@@ -72,19 +76,31 @@
 %token <token> SPLIT_BLOCK
 
 %token <token> COLON
-%token <token> IDENTIFIER
+%token <string> IDENTIFIER
 
 %token <integer> INTEGER
 %token <boolean> BOOL
-%token <character> STRING_TEXT
-%token <character> TEXT
+%token <string> STRING_TEXT
+%token <string> TEXT
 
 // Tipos de dato para los no-terminales generados desde Bison.
 %type <program> program
-
-/* %type <expression> expression
+%type <block> block
+%type <constant> constant
+%type <value> value
+%type <valOrCond> value_with_conditional
+%type <conditional> conditional
 %type <factor> factor
-%type <constant> constant */
+%type <header> header
+%type <body> body
+%type <fork> fork
+%type <text> text
+%type <taggedText> tagged_text
+%type <expression> expression
+%type <whenThen> when_then
+%type <stringStruct> string
+%type <triggerParameters> trigger_parameters
+%type <trigger> trigger
 
 // Reglas de asociatividad y precedencia (de menor a mayor).
 %left ADD SUB
@@ -100,92 +116,89 @@
 
 %%
 
-program: block			{ $$ = ProgramGrammarAction(0); }
-	| block program		{ $$ = ProgramGrammarAction(0); }
+program: block			{ $$ = EndBlockProgramGrammarAction($1); }
+	| block program		{ $$ = BlockProgramGrammarAction($1, $2); }
 	;
 
-block: OPEN_BLOCK header SPLIT_BLOCK body CLOSE_BLOCK				{ printf("block\n"); }
+block: OPEN_BLOCK header SPLIT_BLOCK body CLOSE_BLOCK	{ $$ = BlockGrammarAction($2, $4); }
 	;
 
-header: %empty														{ printf("header\n"); }
-	| header_item header											{ printf("header_item\n"); }
+header: %empty											{ $$ = EmptyHeaderGrammarAction(); }
+	| IDENTIFIER COLON value_with_conditional header	{ $$ = HeaderItemGrammarAction($1, $3, $4); }
 	;
 
-header_item: IDENTIFIER COLON value_with_conditional
+body: %empty		{ $$ = EmptyBodyGrammarAction(); }
+	| text body		{ $$ = TextBodyGrammarAction($1, $2); }
+	| fork body		{ $$ = ForkBodyGrammarAction($1, $2); }
 	;
 
-body: %empty														{ printf("body\n"); }
-	| text body
-	| fork body
+fork: FORK value COLON text		{ $$ = ForkGrammarAction($2, $4); }
 	;
 
-fork: FORK value COLON text
+text: BOLD text BOLD		{ $$ = BoldTextGrammarAction($2); }
+	| ITALIC text ITALIC	{ $$ = ItalicTextGrammarAction($2); }
+	| tagged_text			{ $$ = TaggedTextTextGrammarAction($1); }
+	| INTERP_VAR			{ $$ = InterpVarTextGrammarAction($1); }
+	| trigger				{ $$ = TriggerTextGrammarAction($1); }
+	| TEXT					{ $$ = TextGrammarAcion($1); }
 	;
 
-text: BOLD text BOLD
-	| ITALIC text ITALIC
-	| tagged_text
-	| INTERP_VAR
-	| trigger
-	| TEXT
+tagged_text: BEGIN_TAG IDENTIFIER COLON value_with_conditional CLOSE_TAG OPEN_PARENTHESIS text CLOSE_PARENTHESIS	{ $$ = ValuedTaggedTextGrammarAction($4, $6); }
+	| BEGIN_TAG IDENTIFIER CLOSE_TAG OPEN_PARENTHESIS text CLOSE_PARENTHESIS										{ $$ = UnvaluedTaggedTextGrammarAction($5); }
 	;
 
-tagged_text: BEGIN_TAG IDENTIFIER COLON value_with_conditional CLOSE_TAG OPEN_PARENTHESIS text CLOSE_PARENTHESIS
-	| BEGIN_TAG IDENTIFIER CLOSE_TAG OPEN_PARENTHESIS text CLOSE_PARENTHESIS
+expression: expression[left] ADD expression[right]			{ $$ = AddExprGrammarAction($1, $3); }
+	| expression[left] SUB expression[right]				{ $$ = SubExprGrammarAction($1, $3); }
+	| expression[left] MUL expression[right]				{ $$ = MulExprGrammarAction($1, $3); }
+	| expression[left] DIV expression[right]				{ $$ = DivExprGrammarAction($1, $3); }
+	| expression[left] MOD expression[right]				{ $$ = ModExprGrammarAction($1, $3); }
+	| expression[left] IS expression[right]					{ $$ = IsExprGrammarAction($1, $3); }
+	| expression[left] LESS_THAN expression[right]			{ $$ = LtExprGrammarAction($1, $3); }
+	| expression[left] GREATER_THAN expression[right]		{ $$ = GtExprGrammarAction($1, $3); }
+	| expression[left] LESS_OR_EQUAL expression[right]		{ $$ = LeExprGrammarAction($1, $3); }
+	| expression[left] GREATER_OR_EQUAL expression[right]	{ $$ = GeExprGrammarAction($1, $3); }
+	| expression[left] AND expression[right]				{ $$ = AndExprGrammarAction($1, $3); }
+	| expression[left] OR expression[right]					{ $$ = OrExprGrammarAction($1, $3); }
+	| NOT expression										{ $$ = NotExprGrammarAction($2); }
+	| factor												{ $$ = FactorExprGrammarAction($1); }
 	;
 
-expression: expression[left] ADD expression[right]
-	| expression[left] SUB expression[right]
-	| expression[left] MUL expression[right]
-	| expression[left] DIV expression[right]
-	| expression[left] MOD expression[right]
-	| expression[left] IS expression[right]
-	| expression[left] LESS_THAN expression[right]
-	| expression[left] GREATER_THAN expression[right]
-	| expression[left] LESS_OR_EQUAL expression[right]
-	| expression[left] GREATER_OR_EQUAL expression[right]
-	| expression[left] AND expression[right]
-	| expression[left] OR expression[right]
-	| NOT expression
-	| factor
+factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS	{ $$ = ExprFactorGrammarAction($2); }
+	| value												{ $$ = ValFactorGrammarAction($1); }
 	;
 
-factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS
-	| value
+conditional: value IF expression ELSE value		{ $$ = IfCondGrammarAction($1, $3, $5); }
+	| MATCH IDENTIFIER when_then DEFAULT value	{ $$ = MatchCondGrammarAction($2, $4); }
 	;
 
-conditional: value IF expression ELSE value				
-	| MATCH IDENTIFIER when_then DEFAULT value						
+when_then: %empty							{ $$ = EmptyWhenThenGrammarAction(); }
+	| WHEN constant THEN value when_then	{ $$ = WhenThenGrammarAction($2, $4, $5); }			
 	;
 
-when_then: %empty
-	| WHEN constant THEN value when_then													
+value_with_conditional: conditional		{ $$ = CondValOrCondGrammarAction($1); }
+	| value								{ $$ = ValValOrCondGrammarAction($1);  }
 	;
 
-value_with_conditional: conditional
-	| value
+value: constant		{ $$ = ConstValueGrammarAction($1);  }
+	| IDENTIFIER	{ $$ = IdValueGrammarAction($1); 	 }
+	| string		{ $$ = StringValueGrammarAction($1); }
 	;
 
-value: constant
-	| IDENTIFIER
-	| string
+string: BEGIN_STRING string	{ $$ = BeginStringGrammarAction($2); }
+	| INTERP_VAR string		{ $$ = InterpVarStringGrammarAction($1, $2); }
+	| STRING_TEXT string	{ $$ = TextStringGrammarAction($1, $2); }
+	| END_STRING			{ $$ = EndStringGrammarAction(); }
 	;
 
-string: BEGIN_STRING string
-	| INTERP_VAR string
-	| STRING_TEXT string
-	| END_STRING
+constant: INTEGER	{ $$ = IntConstantGrammarAction($1); }
+	| BOOL			{ $$ = BoolConstantGrammarAction($1); }
 	;
 
-constant: INTEGER
-	| BOOL
+trigger: INTERP_VAR OPEN_PARENTHESIS trigger_parameters CLOSE_PARENTHESIS	{ $$ = TriggerGrammarAction($1, $3); }
 	;
 
-trigger: INTERP_VAR OPEN_PARENTHESIS trigger_parameters CLOSE_PARENTHESIS
+trigger_parameters: %empty	{ $$ = EmptyTriggerParametersGrammarAction(); }
+	| expression			{ $$ = ExprTriggerParametersGrammarAction($1); }
 	;
-
-trigger_parameters: %empty
-	| expression
-	; 
 
 %%
