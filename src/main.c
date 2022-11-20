@@ -34,11 +34,15 @@ const int main(const int argumentCount, const char ** arguments) {
 			// inicial de la gramática satisfactoriamente.
 			if (state.succeed) {
 				LogInfo("Realizando análisis semántico...");
+				if(!symtable_check()) {
+					LogError("Error al chequear tabla de símbolos.");
+					return 4;
+				}
 				AnalyzeAST(state.program);
 				if(state.errorCount > 0) {
 					LogError("La compilación no pudo finalizar debido a errores en el análisis semántico.");
 					LogError("Se encontraron %d errores.", state.errorCount);
-					return 4;
+					return 5;
 				}
 				LogInfo("El análisis semántico fue exitoso.");
 

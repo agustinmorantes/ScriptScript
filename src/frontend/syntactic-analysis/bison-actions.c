@@ -213,6 +213,13 @@ Value* ConstValueGrammarAction(Constant* value) {
 }
 Value* IdValueGrammarAction(char* id) {
 	LogDebug("\tIdValueGrammarAction(id)");
+
+	if(symtable_exists(id)) {
+		SymtableEntry* entry = symtable_get(id);
+		if(entry->type == STT_ENTRYTYPE_TBD)
+			entry->type = STT_ENTRYTYPE_VAR;
+	} else yyerror("El scanner no agregó la variable a la tabla de simbolos");
+
 	Value* val = (Value*) malloc(sizeof(Value));
 	val->type = VT_ID;
 	val->id = id;
@@ -275,21 +282,16 @@ Header* HeaderItemGrammarAction(char* id, ValOrCond* item, Header* next) {
 					yyerror("Hay múltiples bloques con el mismo ID.");
 				else if(entry->type == STT_ENTRYTYPE_TBD)
 					entry->type = STT_ENTRYTYPE_BLOCK;
+				else if(entry->type == STT_ENTRYTYPE_VAR)
+					entry->type = STT_ENTRYTYPE_BLOCK;
 				else yyerror("Este ID ya se está utilizando para una variable o un trigger.");
 			}
 			else yyerror("El scanner no registró el ID. No debería suceder.");
 		}
 		else yyerror("Debe ser un id de bloque válido.");
 	}
-	else if(strcmp(id, "next") == 0) {
-		if(item->type == VCT_VAL) {
-			if(item->value->type == VT_ID) {
-				if(!symtable_exists(item->value->id))
-					yyerror("El scanner no registró el ID. No debería suceder.");
-			}
-			else yyerror("Debe ser un id de bloque válido.");
-		}
-	}
+
+	symtable_add_with_type(id, STT_ENTRYTYPE_HEADER_TAG);
 
 	Header* h = (Header*) malloc(sizeof(Header));
 	h->id = id;
@@ -379,6 +381,7 @@ Text* BoldTextGrammarAction(Text* text) {
 //Tagged Text --------------------------------------------------------------------------------------
 TaggedText* ValuedTaggedTextGrammarAction(char* id, ValOrCond* val, Text* text) {
 	LogDebug("\tValuedTaggedTextGrammarAction(val, text)");
+	symtable_add_with_type(id, STT_ENTRYTYPE_TEXT_TAG);
 	TaggedText* tagged = (TaggedText*) malloc(sizeof(TaggedText));
 	tagged->id = id;
 	tagged->val = val;
@@ -387,6 +390,7 @@ TaggedText* ValuedTaggedTextGrammarAction(char* id, ValOrCond* val, Text* text) 
 }
 TaggedText* UnvaluedTaggedTextGrammarAction(char* id, Text* text) {
 	LogDebug("\tUnvaluedTaggedTextGrammarAction(text)");
+	symtable_add_with_type(id, STT_ENTRYTYPE_TEXT_TAG);
 	TaggedText* tagged = (TaggedText*) malloc(sizeof(TaggedText));
 	tagged->id = id;
 	tagged->val = NULL;

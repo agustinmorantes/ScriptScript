@@ -67,23 +67,28 @@ static void printReplaceStr(const char* format, const char* str) {
 
 
 static void genStringLinks(String* str) {
-	if(str->type == ST_BEGIN) genStringLinks(str->next);
-
-	printf("{");
+	if(str->type == ST_BEGIN) {
+		genStringLinks(str->next);
+		return;
+	}
 
 	switch (str->type) {
 		case ST_INTERP:
+			printf("{");
 			printf("\"type\": \"var\", \"var\": \"%s\"", str->id);
+			printf("}");
 			break;
 		case ST_TEXT:
+			printf("{");
 			printf("\"type\": \"text\", \"text\": \"%s\"", str->text);
+			printf("}");
+			break;
+		case ST_BEGIN:
 			break;
 		default:
 			//TODO: Error
 			break;
 	}
-
-	printf("}");
 
 	if (str->next != NULL) {
 		printf(",");
@@ -212,6 +217,7 @@ static void genExpr(Expression* expr) {
 		case EXP_IS:
 			printf("\"left\": ");
 			genExpr(expr->left);
+			printf(",");
 			printf("\"right\": ");
 			genExpr(expr->right);
 			break;

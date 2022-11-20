@@ -4,11 +4,14 @@
 #include "../support/logger.h"
 #include <stdlib.h>
 
+// Bitflags/Bitmask. 
+// Los valores del enum se utilizan para saber si 2 tipos son compatibles utilizando la operación binaria &.
 typedef enum {
     T_NUM = 1,
     T_BOOL = 2,
     T_STR = 4,
-    T_ID = 7,
+    T_VAR = 7,
+    T_BLOCK_ID = 8
 } Type;
 
 static Type typeFromUnion(Type t1, Type t2);
@@ -30,9 +33,10 @@ static void analyzeProgram(Program* program);
 
 
 static Type typeFromUnion(Type t1, Type t2) {
-    if(t1 != T_STR && t2 != T_STR && (t1 & t2) != 0) {
-        if(t1 == T_ID) return t2;
-        if(t2 == T_ID) return t1;
+    if((t1 & t2) != 0) {
+        if(t1 == T_VAR) return t2;
+        if(t2 == T_VAR) return t1;
+        return t1;
     }
 
     LogError("Incompatible type operation.");
@@ -59,7 +63,11 @@ static Type typeVal(Value* val) {
         case VT_CONST:
             return typeConst(val->constant);
         case VT_ID:
-            return T_ID;
+            SymtableEntry* entry = symtable_get(val->id);
+            if(entry->type == STT_ENTRYTYPE_BLOCK) {
+                return T_BLOCK_ID;
+            }
+            return T_VAR;
         case VT_STR:
             return T_STR;
         default:
@@ -146,8 +154,22 @@ static Type typeValOrCond(ValOrCond * valOrCond) {
     }
 }
 
+static void analyzeHeaderItems(Header* header) {
+    if(strcmp(header->id, "id") == 0 || strcmp(header->id, "next") == 0) {
+        if(typeValOrCond(header->valOrCond) != T_BLOCK_ID) {
+            LogError("El tag '%s' debe ser un ID de bloque válido.", header->id);
+            state.errorCount++;
+        }
+    } else {
+        typeValOrCond(header->valOrCond);
+    }
+
+    if(header->next != NULL)
+        analyzeHeaderItems(header->next);
+}
+
 static void analyzeHeader(Header* header) {
-    typeValOrCond(header->valOrCond);
+    analyzeHeaderItems(header);
 }
 
 static void analyzeFork(Fork* fork) {

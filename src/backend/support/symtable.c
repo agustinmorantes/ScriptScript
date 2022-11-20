@@ -38,6 +38,12 @@ SymtableEntry* symtable_add(const char* id) {
     return entry;
 }
 
+SymtableEntry* symtable_add_with_type(const char* id, SymtableEntryType type) {
+    SymtableEntry* entry = symtable_add(id);
+    entry->type = type;
+    return entry;
+}
+
 SymtableEntry* symtable_get(const char* id) {
     char* key = cstrdup(id);
     
@@ -55,4 +61,20 @@ void symtable_set_type(const char* id, SymtableEntryType type) {
         entry = symtable_add(id);
         entry->type = type;
     }
+}
+
+static void check_entry(void* key, size_t ksize, uintptr_t val, void* usr) {
+    bool* err = (bool*)usr;
+
+    SymtableEntry* entry = (SymtableEntry*)val;
+    if (entry->type == STT_ENTRYTYPE_TBD) {
+        printf("Error: El ID '%s' se utiliza sin ser definido (¿ID de bloque inválido?).\n", (char*)key);
+        *err = true;
+    }
+}
+
+bool symtable_check() {
+    bool err = false;
+    hashmap_iterate(m, check_entry, &err);
+    return !err;
 }
