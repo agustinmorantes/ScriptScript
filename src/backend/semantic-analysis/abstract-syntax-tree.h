@@ -6,6 +6,7 @@
 * de dato y, por lo tanto, su nodo en el AST (Árbol de Sintaxis Abstracta).
 */
 
+#include <stdbool.h>
 
 typedef struct Constant Constant;
 typedef struct String String;
@@ -22,8 +23,8 @@ typedef enum {
 struct Constant {
 	ConstantType type;
 	union {
-		float num;
-		bool boolean;
+		float numVal;
+		bool boolVal;
 	};
 };
 
@@ -82,8 +83,8 @@ typedef enum {
 typedef struct {
 	CondType type;
 	union {
-		IfCond ifCond;
-		MatchCond matchCond;
+		IfCond* ifCond;
+		MatchCond* matchCond;
 	};
 } Conditional;
 

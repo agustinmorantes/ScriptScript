@@ -168,19 +168,21 @@ Conditional* MatchCondGrammarAction(char* id, WhenThen* statements, Value* val) 
 	LogDebug("\tMatchCondGrammarAction(id, statements, val)");
 	Conditional* cond = (Conditional*) malloc(sizeof(Conditional));
 	cond->type = CDT_MATCH;
-	cond->matchCond.id = id;
-	cond->matchCond.whenThenStatements = statements;
-	cond->matchCond.defaultValue = val;
+	cond->matchCond->id = id;
+	cond->matchCond->whenThenStatements = statements;
+	cond->matchCond->defaultValue = val;
 	return cond;
 }
 
 Conditional* IfCondGrammarAction(Value* trueVal, Expression* cond, Value* falseVal) {
 	LogDebug("\tIfCondGrammarAction(trueVal, cond, falseVal)");
 	Conditional* ifCond = (Conditional*) malloc(sizeof(Conditional));
+	ifCond->ifCond = (IfCond*) malloc(sizeof(IfCond));
+	
 	ifCond->type = CDT_IF;
-	ifCond->ifCond.trueVal = trueVal;
-	ifCond->ifCond.condition = cond;
-	ifCond->ifCond.falseVal = falseVal;
+	ifCond->ifCond->trueVal = trueVal;
+	ifCond->ifCond->condition = cond;
+	ifCond->ifCond->falseVal = falseVal;
 	return ifCond;
 }
 
@@ -245,14 +247,14 @@ Constant* IntConstantGrammarAction(int value) {
 	LogDebug("\tIntConstantGrammarAction(int)");
 	Constant* constant = (Constant*) malloc(sizeof(Constant));
 	constant->type = CT_NUM;
-	constant->num = value;
+	constant->numVal = value;
 	return constant;
 }
 Constant* BoolConstantGrammarAction(bool value) {
 	LogDebug("\tBoolConstantGrammarAction(bool)");
 	Constant* constant = (Constant*) malloc(sizeof(Constant));
 	constant->type = CT_BOOL;
-	constant->boolean = value;
+	constant->boolVal = value;
 	return constant;
 }
 
