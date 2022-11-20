@@ -423,5 +423,5 @@ static void genBlocks(Program* program) {
 void Generator(Program* program) {
 	printf("[");
 	genBlocks(program);
-	printf("]");
+	printf("]\n");
 }

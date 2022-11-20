@@ -3,6 +3,7 @@
 #include "backend/support/shared.h"
 #include "frontend/syntactic-analysis/bison-parser.h"
 #include "backend/support/symtable.h"
+#include "backend/semantic-analysis/analyzer.h"
 #include <stdio.h> 
 
 // Estado de la aplicación.
@@ -32,13 +33,23 @@ const int main(const int argumentCount, const char ** arguments) {
 			// La variable "succeed" es la que setea Bison al identificar el símbolo
 			// inicial de la gramática satisfactoriamente.
 			if (state.succeed) {
-				LogInfo("La compilación fue exitosa.");
+				LogInfo("Realizando análisis semántico...");
+				AnalyzeAST(state.program);
+				if(state.errorCount > 0) {
+					LogError("La compilación no pudo finalizar debido a errores en el análisis semántico.");
+					LogError("Se encontraron %d errores.", state.errorCount);
+					return 4;
+				}
+				LogInfo("El análisis semántico fue exitoso.");
+
+				LogInfo("Generando código...");
 				Generator(state.program);
+				LogInfo("La compilación fue exitosa.");
 			}
 			else {
 				LogError("Se produjeron %d errores en la compilación.", state.errorCount);
 				symtable_free();
-				return -1;
+				return 3;
 			}
 			break;
 		case 1:
