@@ -100,20 +100,19 @@ token SplitBlockPatternAction(const char * lexeme) {
 
 token IdentifierPatternAction(const char * lexeme, const int length) {
 	LogDebug("IdentifierPatternAction: '%s' (length = %d)", lexeme, length);
-	yylval.token = IDENTIFIER;
+	yylval.string = cstrdup(lexeme);
 	return IDENTIFIER;
 }
 
 token ColonPatternAction(const char * lexeme) {
-	LogDebug("ColonPatternAction", lexeme);
+	LogDebug("ColonPatternAction");
 	yylval.token = COLON;
 	return COLON;
 }
 
 token TextCharacterPatternAction(const char * lexeme, const int length) {
 	LogDebug("%s", lexeme);
-	//TODO: Guardar bien el texto
-	yylval.character = length;
+	yylval.string = cstrdup(lexeme);
 	return TEXT;
 }
 
@@ -209,8 +208,7 @@ token GreaterThanOrEqualOperatorPatternAction(const char* lexeme) {
 
 token InterpVariablePatternAction(const char * lexeme, const int length) {
 	LogDebug("InterpVariablePatternAction: '%s' (length = %d)", &lexeme[1], length-1);
-	//TODO: Guardar bien el texto
-	yylval.token = INTERP_VAR;
+	yylval.string = cstrdup(lexeme);
 	return INTERP_VAR;
 }
 
@@ -234,12 +232,18 @@ token ItalicPatternAction(const char * lexeme) {
 
 token StringCharacterPatternAction(const char * lexeme, const int length) {
 	LogDebug("%s", lexeme);
-	yylval.character = length;
+	yylval.string = cstrdup(&lexeme[2]);
+	return STRING_TEXT;
+}
+
+token StringTextPatternAction(const char * lexeme, const int length) {
+	LogDebug("%s", lexeme);
+	yylval.string = cstrdup(lexeme);
 	return STRING_TEXT;
 }
 
 token BeginStringPatternAction(const char * lexeme) {
-	LogDebug("BeginStringPatternAction", lexeme);
+	LogDebug("BeginStringPatternAction");
 	yylval.token = BEGIN_STRING;
 	return BEGIN_STRING;
 }

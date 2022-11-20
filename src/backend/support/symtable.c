@@ -2,6 +2,7 @@
 #include <string.h>
 #include "symtable.h"
 #include "map.h"
+#include "shared.h"
 
 static hashmap* m;
 
@@ -20,7 +21,7 @@ void symtable_free() {
 }
 
 bool symtable_exists(const char* id) {
-    char* key = strdup(id);
+    char* key = cstrdup(id);
     bool ret = hashmap_get(m, key, strlen(key), NULL);
     free(key);
     return ret;
@@ -29,7 +30,7 @@ bool symtable_exists(const char* id) {
 SymtableEntry* symtable_add(const char* id) {
     if (symtable_exists(id)) return NULL;
 
-    char* key = strdup(id);
+    char* key = cstrdup(id);
     SymtableEntry* entry = calloc(1,sizeof(SymtableEntry));
     hashmap_set(m, key, strlen(key), (uintptr_t)entry);
 
@@ -37,7 +38,7 @@ SymtableEntry* symtable_add(const char* id) {
 }
 
 SymtableEntry* symtable_get(const char* id) {
-    char* key = strdup(id);
+    char* key = cstrdup(id);
     
     uintptr_t val = (uintptr_t)NULL;
     hashmap_get(m, key, strlen(key), &val);

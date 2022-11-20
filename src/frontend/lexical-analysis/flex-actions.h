@@ -66,6 +66,7 @@ token BoldPatternAction(const char * lexeme);
 token ItalicPatternAction(const char * lexeme);
 
 token StringCharacterPatternAction(const char * lexeme, const int length);
+token StringTextPatternAction(const char * lexeme, const int length);
 token BeginStringPatternAction(const char * lexeme);
 token EndStringPatternAction(const char * lexeme);
 
