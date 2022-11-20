@@ -53,7 +53,7 @@
 %token <token> THEN
 %token <token> DEFAULT
 
-// Comparation tokens
+// Comparison tokens
 %token <token> LESS_THAN
 %token <token> GREATER_THAN
 %token <token> LESS_OR_EQUAL

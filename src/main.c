@@ -36,6 +36,7 @@ const int main(const int argumentCount, const char ** arguments) {
 			}
 			else {
 				LogError("Se produjo un error en la aplicacion.");
+				symtable_free();
 				return -1;
 			}
 			break;
