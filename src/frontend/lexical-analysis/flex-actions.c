@@ -100,6 +100,7 @@ token SplitBlockPatternAction(const char * lexeme) {
 
 token IdentifierPatternAction(const char * lexeme, const int length) {
 	LogDebug("IdentifierPatternAction: '%s' (length = %d)", lexeme, length);
+	symtable_add(lexeme);
 	yylval.string = cstrdup(lexeme);
 	return IDENTIFIER;
 }
@@ -208,7 +209,8 @@ token GreaterThanOrEqualOperatorPatternAction(const char* lexeme) {
 
 token InterpVariablePatternAction(const char * lexeme, const int length) {
 	LogDebug("InterpVariablePatternAction: '%s' (length = %d)", &lexeme[1], length-1);
-	yylval.string = cstrdup(lexeme);
+	symtable_add(&lexeme[1]);
+	yylval.string = cstrdup(&lexeme[1]);
 	return INTERP_VAR;
 }
 
