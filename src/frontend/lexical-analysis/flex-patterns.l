@@ -37,7 +37,7 @@ identifier      {alpha}{alphanumeric}*
 <COMMENT>{endline}							{ ; }
 
 
-<BODY>\\.							        { return TextCharacterPatternAction(yytext, yyleng); }
+<BODY>\\.							        { return TextCharacterPatternAction(&yytext[1], yyleng); }
 <BODY>"}"								    { BEGIN(INITIAL); return CloseBlockPatternAction(yytext); }
 <BODY>"@"               				    { return_to = FORK; BEGIN(FORK); return BeginForkPatternAction(yytext); }
 <BODY>"["                                   { BEGIN(INITIAL); return BeginTagPatternAction(yytext); }

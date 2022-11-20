@@ -326,15 +326,12 @@ static void genHeader(Header* header) {
 }
 
 static void genFork(Fork* fork) {
-	printf("{");
-
 	printf("\"decision\": ");
 	genVal(fork->val);
-
-	printf("\"text\": ");
+	printf(",");
+	printf("\"text\": {");
 	genText(fork->text);
-
-	printf("},");
+	printf("}");
 }
 
 static void genTriggerParams(TriggerParameter* params) {
@@ -356,7 +353,7 @@ static void genText(Text* text) {
 			genText(text->inner);
 			break;
 		case TT_ITALIC:
-			printf("\"italic\": true");
+			printf("\"italic\": true,");
 			genText(text->inner);
 			break;
 		case TT_INTERPVAR:
@@ -369,6 +366,18 @@ static void genText(Text* text) {
 			printf("\"params\": [");
 			genTriggerParams(text->trigger->parameters);
 			printf("]");
+		case TT_TAGGED:
+			if(text->tagged->val != NULL) {
+				printf("\"%s\": ", text->tagged->id);
+				genValOrCond(text->tagged->val);
+			}
+			else {
+				printf("\"%s\": true", text->tagged->id);
+			}
+			
+			printf(",");
+			genText(text->tagged->text);
+			break;
 		default:
 			break;
 	}

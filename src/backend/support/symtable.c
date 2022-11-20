@@ -63,18 +63,33 @@ void symtable_set_type(const char* id, SymtableEntryType type) {
     }
 }
 
+struct check {
+    bool err;
+    bool hasStart;
+};
+
 static void check_entry(void* key, size_t ksize, uintptr_t val, void* usr) {
-    bool* err = (bool*)usr;
+    struct check* check = (struct check*)usr;
 
     SymtableEntry* entry = (SymtableEntry*)val;
     if (entry->type == STT_ENTRYTYPE_TBD) {
         printf("Error: El ID '%s' se utiliza sin ser definido (¿ID de bloque inválido?).\n", (char*)key);
-        *err = true;
+        check->err = true;
+    }
+
+    if(entry->type == STT_ENTRYTYPE_BLOCK && strcmp((char*)key, "start") == 0) {
+        check->hasStart = true;
     }
 }
 
 bool symtable_check() {
-    bool err = false;
-    hashmap_iterate(m, check_entry, &err);
-    return !err;
+    struct check check = {false, false};
+    hashmap_iterate(m, check_entry, &check);
+
+    if(!check.hasStart) {
+        printf("Error: No se encontró el bloque 'start'.\n");
+        check.err = true;
+    }
+
+    return !check.err;
 }
