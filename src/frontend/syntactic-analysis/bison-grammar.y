@@ -68,7 +68,7 @@
 %token <token> CLOSE_TAG
 %token <token> BEGIN_STRING
 %token <token> END_STRING
-%token <token> INTERP_VAR
+%token <string> INTERP_VAR
 
 
 %token <token> OPEN_BLOCK
@@ -147,18 +147,18 @@ tagged_text: BEGIN_TAG IDENTIFIER COLON value_with_conditional CLOSE_TAG OPEN_PA
 	| BEGIN_TAG IDENTIFIER CLOSE_TAG OPEN_PARENTHESIS text CLOSE_PARENTHESIS										{ $$ = UnvaluedTaggedTextGrammarAction($5); }
 	;
 
-expression: expression[left] ADD expression[right]			{ $$ = AddExprGrammarAction($1, $3); }
-	| expression[left] SUB expression[right]				{ $$ = SubExprGrammarAction($1, $3); }
-	| expression[left] MUL expression[right]				{ $$ = MulExprGrammarAction($1, $3); }
-	| expression[left] DIV expression[right]				{ $$ = DivExprGrammarAction($1, $3); }
-	| expression[left] MOD expression[right]				{ $$ = ModExprGrammarAction($1, $3); }
-	| expression[left] IS expression[right]					{ $$ = IsExprGrammarAction($1, $3); }
-	| expression[left] LESS_THAN expression[right]			{ $$ = LtExprGrammarAction($1, $3); }
-	| expression[left] GREATER_THAN expression[right]		{ $$ = GtExprGrammarAction($1, $3); }
-	| expression[left] LESS_OR_EQUAL expression[right]		{ $$ = LeExprGrammarAction($1, $3); }
-	| expression[left] GREATER_OR_EQUAL expression[right]	{ $$ = GeExprGrammarAction($1, $3); }
-	| expression[left] AND expression[right]				{ $$ = AndExprGrammarAction($1, $3); }
-	| expression[left] OR expression[right]					{ $$ = OrExprGrammarAction($1, $3); }
+expression: expression[left] ADD expression[right]			{ $$ = AddExprGrammarAction($left, $right); }
+	| expression[left] SUB expression[right]				{ $$ = SubExprGrammarAction($left, $right); }
+	| expression[left] MUL expression[right]				{ $$ = MulExprGrammarAction($left, $right); }
+	| expression[left] DIV expression[right]				{ $$ = DivExprGrammarAction($left, $right); }
+	| expression[left] MOD expression[right]				{ $$ = ModExprGrammarAction($left, $right); }
+	| expression[left] IS expression[right]					{ $$ = IsExprGrammarAction($left, $right); }
+	| expression[left] LESS_THAN expression[right]			{ $$ = LtExprGrammarAction($left, $right); }
+	| expression[left] GREATER_THAN expression[right]		{ $$ = GtExprGrammarAction($left, $right); }
+	| expression[left] LESS_OR_EQUAL expression[right]		{ $$ = LeExprGrammarAction($left, $right); }
+	| expression[left] GREATER_OR_EQUAL expression[right]	{ $$ = GeExprGrammarAction($left, $right); }
+	| expression[left] AND expression[right]				{ $$ = AndExprGrammarAction($left, $right); }
+	| expression[left] OR expression[right]					{ $$ = OrExprGrammarAction($left, $right); }
 	| NOT expression										{ $$ = NotExprGrammarAction($2); }
 	| factor												{ $$ = FactorExprGrammarAction($1); }
 	;

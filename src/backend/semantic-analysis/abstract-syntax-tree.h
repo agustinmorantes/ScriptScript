@@ -7,33 +7,51 @@
 */
 
 typedef struct {
-	Expression* expression;
+	Block* block;
+	Program* next;
 } Program;
 
 
 typedef enum {
-	ADDITION,
-	SUBTRACTION,
-	MULTIPLICATION,
-	DIVISION,
-	FACTOR
+	EXP_ADD,
+	EXP_SUB,
+	EXP_MUL,
+	EXP_DIV,
+	EXP_MOD,
+	EXP_IS,
+	EXP_LT,
+	EXP_GT,
+	EXP_LE,
+	EXP_GE,
+	EXP_AND,
+	EXP_OR,
+	EXP_NOT,
+	EXP_FACTOR
 } ExpressionType;
 
 typedef struct Expression Expression;
 struct Expression {
-	ExpressionType type, leftType, rightType;
-	union left {
-		Expression* expr;
-		Factor* factor;
-	};
-	union right {
-		Expression* expr;
-		Factor* factor;
-	};
+	ExpressionType type;
+	Expression* left;
+	Expression* right;
+	Factor* factor;
 };
 
+
+typedef enum {
+	ST_BEGIN,
+	ST_INTERP,
+	ST_TEXT
+} StringType;
 typedef struct {
-	// TODO: String Item List
+	StringType* type;
+
+	union {
+		char* id;
+		char* text;
+	};
+
+	String* next;
 } String;
 
 typedef enum {
@@ -43,7 +61,7 @@ typedef enum {
 } ValueType;
 typedef struct {
 	ValueType type;
-	union value {
+	union {
 		Constant* constant;
 		char* id;
 		String* str;
@@ -74,7 +92,7 @@ typedef enum {
 } CondType;
 typedef struct {
 	CondType type;
-	union cond {
+	union {
 		IfCond* ifCond;
 		MatchCond* matchCond;
 	};
@@ -87,7 +105,7 @@ typedef enum {
 } ValOrCondType;
 typedef struct {
 	ValOrCondType type;
-	union content {
+	union {
 		Value* value;
 		Conditional* conditional;
 	};
@@ -99,7 +117,7 @@ typedef enum {
 } ConstantType;
 typedef struct {
 	ConstantType type;
-	union value {
+	union {
 		float num;
 		bool boolean;
 	};
@@ -107,14 +125,14 @@ typedef struct {
 
 
 typedef enum {
-	EXPRESSION,
-	CONSTANT
+	FT_EXPR,
+	FT_VAL
 } FactorType;
 typedef struct {
 	FactorType type;
-	union value {
-		Expression* expression;
-		Constant* constant;
+	union {
+		Expression* expr;
+		Value* val;
 	};
 } Factor;
 
@@ -128,7 +146,7 @@ typedef enum {
 } TextType;
 typedef struct {
 	TextType type;
-	union value {
+	union {
 		char* text;
 		Trigger* trigger;
 		char* id;
@@ -161,11 +179,23 @@ typedef struct {
 
 
 typedef struct {
-	//TODO: HeaderItemList
+	char* id;
+	ValOrCond* valOrCond;
+	Header* next;
 } Header;
 
+typedef enum {
+	BT_TEXT,
+	BT_FORK
+} BodyType;
 typedef struct {
-	//TODO: BodyItemList
+	BodyType type;
+	union {
+		Text* text;
+		Fork* fork;
+	};
+
+	Body* next;
 } Body;
 
 typedef struct {
