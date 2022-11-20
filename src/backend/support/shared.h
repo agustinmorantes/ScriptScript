@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
 #include "../semantic-analysis/abstract-syntax-tree.h"
 #include "symtable.h"
 
@@ -55,5 +57,13 @@ typedef struct {
 
 // El estado se define e inicializa en el archivo "main.c".
 extern CompilerState state;
+
+static char* cstrdup(const char* str) {
+	char* copy = malloc(strlen(str) + 1);
+	if (copy) {
+		strcpy(copy, str);
+	}
+	return copy;
+}
 
 #endif

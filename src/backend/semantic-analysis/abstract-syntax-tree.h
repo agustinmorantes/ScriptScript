@@ -6,45 +6,34 @@
 * de dato y, por lo tanto, su nodo en el AST (Árbol de Sintaxis Abstracta).
 */
 
-typedef struct {
-	Block* block;
-	Program* next;
-} Program;
+
+typedef struct Constant Constant;
+typedef struct String String;
+typedef struct Expression Expression;
+typedef struct WhenThen WhenThen;
+typedef struct Trigger Trigger;
+typedef struct TaggedText TaggedText;
 
 
 typedef enum {
-	EXP_ADD,
-	EXP_SUB,
-	EXP_MUL,
-	EXP_DIV,
-	EXP_MOD,
-	EXP_IS,
-	EXP_LT,
-	EXP_GT,
-	EXP_LE,
-	EXP_GE,
-	EXP_AND,
-	EXP_OR,
-	EXP_NOT,
-	EXP_FACTOR
-} ExpressionType;
-
-typedef struct Expression Expression;
-struct Expression {
-	ExpressionType type;
-	Expression* left;
-	Expression* right;
-	Factor* factor;
+	CT_NUM,
+	CT_BOOL
+} ConstantType;
+struct Constant {
+	ConstantType type;
+	union {
+		float num;
+		bool boolean;
+	};
 };
-
 
 typedef enum {
 	ST_BEGIN,
 	ST_INTERP,
 	ST_TEXT
 } StringType;
-typedef struct {
-	StringType* type;
+struct String {
+	StringType type;
 
 	union {
 		char* id;
@@ -52,7 +41,7 @@ typedef struct {
 	};
 
 	String* next;
-} String;
+};
 
 typedef enum {
 	VT_CONST,
@@ -74,11 +63,11 @@ typedef struct {
 	Value* falseVal;
 } IfCond;
 
-typedef struct {
+struct WhenThen {
 	Constant* constant;
 	Value* val;
 	WhenThen* next;
-} WhenThen;
+};
 
 typedef struct {
 	char* id;
@@ -93,8 +82,8 @@ typedef enum {
 typedef struct {
 	CondType type;
 	union {
-		IfCond* ifCond;
-		MatchCond* matchCond;
+		IfCond ifCond;
+		MatchCond matchCond;
 	};
 } Conditional;
 
@@ -111,18 +100,6 @@ typedef struct {
 	};
 } ValOrCond;
 
-typedef enum {
-	CT_NUM,
-	CT_BOOL
-} ConstantType;
-typedef struct {
-	ConstantType type;
-	union {
-		float num;
-		bool boolean;
-	};
-} Constant;
-
 
 typedef enum {
 	FT_EXPR,
@@ -136,6 +113,31 @@ typedef struct {
 	};
 } Factor;
 
+
+typedef enum {
+	EXP_ADD,
+	EXP_SUB,
+	EXP_MUL,
+	EXP_DIV,
+	EXP_MOD,
+	EXP_IS,
+	EXP_LT,
+	EXP_GT,
+	EXP_LE,
+	EXP_GE,
+	EXP_AND,
+	EXP_OR,
+	EXP_NOT,
+	EXP_FACTOR
+} ExpressionType;
+
+struct Expression {
+	ExpressionType type;
+	Expression* left;
+	Expression* right;
+	Factor* factor;
+};
+
 typedef enum {
 	TT_TEXT,
 	TT_TRIGGER,
@@ -144,32 +146,33 @@ typedef enum {
 	TT_ITALIC,
 	TT_BOLD
 } TextType;
-typedef struct {
+typedef struct Text {
 	TextType type;
 	union {
 		char* text;
 		Trigger* trigger;
 		char* id;
 		TaggedText* tagged;
-		Text* inner;
+		struct Text* inner;
 	};
 } Text;
 
-typedef struct {
+struct TaggedText {
+	char* id;
 	ValOrCond* val;
 	Text* text;
-} TaggedText;
+};
 
 
-typedef struct {
+typedef struct TriggerParameter {
 	Expression* expr;
-	TriggerParameter* next;
+	struct TriggerParameter* next;
 } TriggerParameter;
 
-typedef struct {
+struct Trigger {
 	char* id;
 	TriggerParameter* parameters;
-} Trigger;
+};
 
 
 typedef struct {
@@ -178,29 +181,34 @@ typedef struct {
 } Fork;
 
 
-typedef struct {
+typedef struct Header {
 	char* id;
 	ValOrCond* valOrCond;
-	Header* next;
+	struct Header* next;
 } Header;
 
 typedef enum {
 	BT_TEXT,
 	BT_FORK
 } BodyType;
-typedef struct {
+typedef struct Body {
 	BodyType type;
 	union {
 		Text* text;
 		Fork* fork;
 	};
 
-	Body* next;
+	struct Body* next;
 } Body;
 
 typedef struct {
 	Header* header;
 	Body* body;
 } Block;
+
+typedef struct Program {
+	Block* block;
+	struct Program* next;
+} Program;
 
 #endif

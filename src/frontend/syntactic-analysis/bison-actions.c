@@ -110,7 +110,26 @@ Expression* FactorExprGrammarAction(Factor* factor) {
 	expr->right = NULL;
 	return expr;
 }
+//Conditionals -----------------------------------------------------------------------------
+Conditional* MatchCondGrammarAction(char* id, WhenThen* statements, Value* val) {
+	LogDebug("\tMatchCondGrammarAction(id, statements, val)");
+	Conditional* cond = (Conditional*) malloc(sizeof(Conditional));
+	cond->type = CDT_MATCH;
+	cond->matchCond.id = id;
+	cond->matchCond.whenThenStatements = statements;
+	cond->matchCond.defaultValue = val;
+	return cond;
+}
 
+Conditional* IfCondGrammarAction(Value* trueVal, Expression* cond, Value* falseVal) {
+	LogDebug("\tIfCondGrammarAction(trueVal, cond, falseVal)");
+	Conditional* ifCond = (Conditional*) malloc(sizeof(Conditional));
+	ifCond->type = CDT_IF;
+	ifCond->ifCond.trueVal = trueVal;
+	ifCond->ifCond.condition = cond;
+	ifCond->ifCond.falseVal = falseVal;
+	return ifCond;
+}
 
 //Conditional Values -----------------------------------------------------------------------
 ValOrCond* CondValOrCondGrammarAction(Conditional* cond) {
@@ -274,16 +293,18 @@ Text* BoldTextGrammarAction(Text* text) {
 }
 
 //Tagged Text --------------------------------------------------------------------------------------
-TaggedText* ValuedTaggedTextGrammarAction(ValOrCond* val, Text* text) {
+TaggedText* ValuedTaggedTextGrammarAction(char* id, ValOrCond* val, Text* text) {
 	LogDebug("\tValuedTaggedTextGrammarAction(val, text)");
 	TaggedText* tagged = (TaggedText*) malloc(sizeof(TaggedText));
+	tagged->id = id;
 	tagged->val = val;
 	tagged->text = text;
 	return tagged;
 }
-TaggedText* UnvaluedTaggedTextGrammarAction(Text* text) {
+TaggedText* UnvaluedTaggedTextGrammarAction(char* id, Text* text) {
 	LogDebug("\tUnvaluedTaggedTextGrammarAction(text)");
 	TaggedText* tagged = (TaggedText*) malloc(sizeof(TaggedText));
+	tagged->id = id;
 	tagged->val = NULL;
 	tagged->text = text;
 	return tagged;
@@ -377,7 +398,7 @@ Program* BlockProgramGrammarAction(Block* block, Program* next) {
 	program->next = next;
 
 	state.succeed = true;
-	state.result = program;
+	state.program = program;
 
 	return program;
 }

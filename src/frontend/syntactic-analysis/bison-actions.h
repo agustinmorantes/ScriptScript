@@ -24,6 +24,10 @@ Expression* FactorExprGrammarAction(Factor* factor);
 ValOrCond* CondValOrCondGrammarAction(Conditional* cond);
 ValOrCond* ValValOrCondGrammarAction(Value* val);
 
+//Conditionals
+Conditional* MatchCondGrammarAction(char* id, WhenThen* statements, Value* val);
+Conditional* IfCondGrammarAction(Value* trueVal, Expression* cond, Value* falseVal);
+
 //Values
 Value* ConstValueGrammarAction(Constant* value);
 Value* IdValueGrammarAction(char* id);
@@ -58,8 +62,8 @@ Text* ItalicTextGrammarAction(Text* text);
 Text* BoldTextGrammarAction(Text* text);
 
 //Tagged Text
-TaggedText* ValuedTaggedTextGrammarAction(ValOrCond* val, Text* text);
-TaggedText* UnvaluedTaggedTextGrammarAction(Text* text);
+TaggedText* ValuedTaggedTextGrammarAction(char* id, ValOrCond* val, Text* text);
+TaggedText* UnvaluedTaggedTextGrammarAction(char* id, Text* text);
 
 //String
 String* BeginStringGrammarAction(String* next);

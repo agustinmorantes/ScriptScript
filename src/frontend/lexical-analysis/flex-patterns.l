@@ -57,7 +57,7 @@ identifier      {alpha}{alphanumeric}*
 <STRING>\"                                  { BEGIN(return_to); return EndStringPatternAction(yytext); } 
 <STRING>\\.                                 { return StringCharacterPatternAction(yytext, yyleng); }
 <STRING>\${identifier}                      { return InterpVariablePatternAction(yytext,yyleng); }
-<STRING>[^\"\n\$\\]*                          { return StringCharacterPatternAction(yytext, yyleng); }
+<STRING>[^\"\n\$\\]*                          { return StringTextPatternAction(yytext, yyleng); }
 <STRING>.                                   { return UnknownPatternAction(yytext, yyleng); }
 <STRING>{endline}                           { return UnknownPatternAction(yytext, yyleng); }
 

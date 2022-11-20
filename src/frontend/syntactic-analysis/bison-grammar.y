@@ -23,7 +23,7 @@
 	TaggedText* taggedText;
 	String* stringStruct;
 	Trigger* trigger;
-	TriggerParameters* triggerParameters;
+	TriggerParameter* triggerParameters;
 
 	// Terminales.
 	token token;
@@ -140,11 +140,11 @@ text: BOLD text BOLD		{ $$ = BoldTextGrammarAction($2); }
 	| tagged_text			{ $$ = TaggedTextTextGrammarAction($1); }
 	| INTERP_VAR			{ $$ = InterpVarTextGrammarAction($1); }
 	| trigger				{ $$ = TriggerTextGrammarAction($1); }
-	| TEXT					{ $$ = TextGrammarAcion($1); }
+	| TEXT					{ $$ = TextGrammarAction($1); }
 	;
 
-tagged_text: BEGIN_TAG IDENTIFIER COLON value_with_conditional CLOSE_TAG OPEN_PARENTHESIS text CLOSE_PARENTHESIS	{ $$ = ValuedTaggedTextGrammarAction($4, $6); }
-	| BEGIN_TAG IDENTIFIER CLOSE_TAG OPEN_PARENTHESIS text CLOSE_PARENTHESIS										{ $$ = UnvaluedTaggedTextGrammarAction($5); }
+tagged_text: BEGIN_TAG IDENTIFIER[id] COLON value_with_conditional[val] CLOSE_TAG OPEN_PARENTHESIS text[txt] CLOSE_PARENTHESIS	{ $$ = ValuedTaggedTextGrammarAction($id , $val , $txt); }
+	| BEGIN_TAG IDENTIFIER[id] CLOSE_TAG OPEN_PARENTHESIS text[txt] CLOSE_PARENTHESIS										{ $$ = UnvaluedTaggedTextGrammarAction($id, $txt); }
 	;
 
 expression: expression[left] ADD expression[right]			{ $$ = AddExprGrammarAction($left, $right); }
@@ -167,8 +167,8 @@ factor: OPEN_PARENTHESIS expression CLOSE_PARENTHESIS	{ $$ = ExprFactorGrammarAc
 	| value												{ $$ = ValFactorGrammarAction($1); }
 	;
 
-conditional: value IF expression ELSE value		{ $$ = IfCondGrammarAction($1, $3, $5); }
-	| MATCH IDENTIFIER when_then DEFAULT value	{ $$ = MatchCondGrammarAction($2, $4); }
+conditional: value IF expression ELSE value			{ $$ = IfCondGrammarAction($1, $3, $5); }
+	| MATCH IDENTIFIER when_then DEFAULT value			{ $$ = MatchCondGrammarAction($2, $3, $5); }
 	;
 
 when_then: %empty							{ $$ = EmptyWhenThenGrammarAction(); }
