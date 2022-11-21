@@ -3,10 +3,10 @@
 #include <stdbool.h>
 
 typedef enum {
-    ST_ENTRYTYPE_TBD = 0,
-    ST_ENTRYTYPE_VAR,
-    ST_ENTRYTYPE_BLOCK,
-    ST_ENTRYTYPE_TRIGGER
+    STT_ENTRYTYPE_TBD = 0,
+    STT_ENTRYTYPE_VAR,
+    STT_ENTRYTYPE_BLOCK,
+    STT_ENTRYTYPE_TRIGGER
 } SymtableEntryType;
 
 typedef struct {

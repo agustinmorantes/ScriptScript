@@ -20,6 +20,59 @@ void yyerror(const char * string) {
 		LogErrorRaw("[%d]", yytext[i]);
 	}
 	LogErrorRaw("\n\n");
+	state.errorCount++;
+}
+
+//Static functions -------------------------------------------------------------------------
+
+static void setSymtableInterpVar(const char* id) {
+	if(symtable_exists(id)) {
+		SymtableEntry* entry = symtable_get(id);
+
+		switch(entry->type) {
+			case STT_ENTRYTYPE_VAR:
+				break;
+			case STT_ENTRYTYPE_TBD:
+				entry->type = STT_ENTRYTYPE_VAR;
+				break;
+			case STT_ENTRYTYPE_BLOCK:
+				yyerror("Se intentó utilizar un ID de bloque como una variable.");
+				break;
+			case STT_ENTRYTYPE_TRIGGER:
+				yyerror("Se intentó utilizar un trigger como una variable.");
+				break;
+			default:
+				yyerror("La variable fue utilizada previamente pero es de tipo desconocido. No debería suceder.");
+				break;
+		}
+	} else {
+		yyerror("El scanner no agregó el id a la tabla de símbolos. No debería suceder.");
+	}
+}
+
+static void setSymtableTrigger(const char* id) {
+	if(symtable_exists(id)) {
+		SymtableEntry* entry = symtable_get(id);
+
+		switch(entry->type) {
+			case STT_ENTRYTYPE_TRIGGER:
+				break;
+			case STT_ENTRYTYPE_TBD:
+				entry->type = STT_ENTRYTYPE_TRIGGER;
+				break;
+			case STT_ENTRYTYPE_VAR:
+				yyerror("Se intentó utilizar una variable como un trigger.");
+				break;
+			case STT_ENTRYTYPE_BLOCK:
+				yyerror("Se intentó utilizar un ID de bloque como un trigger.");
+				break;
+			default:
+				yyerror("El id fue utilizado previamente pero es de tipo desconocido. No debería suceder.");
+				break;
+		}
+	} else {
+		yyerror("El scanner no agregó el id a la tabla de símbolos. No debería suceder.");
+	}
 }
 
 
@@ -210,6 +263,32 @@ Header* EmptyHeaderGrammarAction() {
 }
 Header* HeaderItemGrammarAction(char* id, ValOrCond* item, Header* next) {
 	LogDebug("\tHeaderItemGrammarAction(id, item, header)");
+
+	if(strcmp(id, "id") == 0) {
+		if(item->type == VCT_VAL && item->value->type == VT_ID) {
+			if(symtable_exists(item->value->id)) {
+				SymtableEntry* entry = symtable_get(item->value->id);
+				
+				if(entry->type == STT_ENTRYTYPE_BLOCK)
+					yyerror("Hay múltiples bloques con el mismo ID.");
+				else if(entry->type == STT_ENTRYTYPE_TBD)
+					entry->type = STT_ENTRYTYPE_BLOCK;
+				else yyerror("Este ID ya se está utilizando para una variable o un trigger.");
+			}
+			else yyerror("El scanner no registró el ID. No debería suceder.");
+		}
+		else yyerror("Debe ser un id de bloque válido.");
+	}
+	else if(strcmp(id, "next") == 0) {
+		if(item->type == VCT_VAL) {
+			if(item->value->type == VT_ID) {
+				if(!symtable_exists(item->value->id))
+					yyerror("El scanner no registró el ID. No debería suceder.");
+			}
+			else yyerror("Debe ser un id de bloque válido.");
+		}
+	}
+
 	Header* h = (Header*) malloc(sizeof(Header));
 	h->id = id;
 	h->valOrCond = item;
@@ -265,6 +344,9 @@ Text* TriggerTextGrammarAction(Trigger* trigger) {
 }
 Text* InterpVarTextGrammarAction(char* id) {
 	LogDebug("\tInterpVarTextGrammarAction(id)");
+
+	setSymtableInterpVar(id);
+
 	Text* t = (Text*) malloc(sizeof(Text));
 	t->type = TT_INTERPVAR;
 	t->id = id;
@@ -320,6 +402,9 @@ String* BeginStringGrammarAction(String* next) {
 }
 String* InterpVarStringGrammarAction(char* id, String* next) {
 	LogDebug("\tInterpVarStringGrammarAction(id, next)");
+
+	setSymtableInterpVar(id);
+
 	String* str = (String*) malloc(sizeof(String));
 	str->type = ST_INTERP;
 	str->id = id;
@@ -365,6 +450,9 @@ Block* BlockGrammarAction(Header* header, Body* body) {
 //Trigger --------------------------------------------------------------------------------------
 Trigger* TriggerGrammarAction(char* id, TriggerParameter* parameters) {
 	LogDebug("\tTriggerGrammarAction(id, parameters)");
+
+	setSymtableTrigger(id);
+
 	Trigger* trigger = (Trigger*) malloc(sizeof(Trigger));
 	trigger->id = id;
 	trigger->parameters = parameters;
@@ -389,6 +477,12 @@ Program* EndBlockProgramGrammarAction(Block* block) {
 	Program* program = (Program*) malloc(sizeof(Program));
 	program->block = block;
 	program->next = NULL;
+
+	if(state.errorCount == 0) {
+		state.succeed = true;
+		state.program = program;
+	}
+
 	return program;
 }
 Program* BlockProgramGrammarAction(Block* block, Program* next) {
@@ -397,8 +491,10 @@ Program* BlockProgramGrammarAction(Block* block, Program* next) {
 	program->block = block;
 	program->next = next;
 
-	state.succeed = true;
-	state.program = program;
+	if(state.errorCount == 0) {
+		state.succeed = true;
+		state.program = program;
+	}
 
 	return program;
 }

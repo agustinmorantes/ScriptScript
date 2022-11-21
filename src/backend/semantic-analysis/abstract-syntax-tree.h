@@ -28,7 +28,7 @@ struct Constant {
 };
 
 typedef enum {
-	ST_BEGIN,
+	ST_BEGIN = 0,
 	ST_INTERP,
 	ST_TEXT
 } StringType;

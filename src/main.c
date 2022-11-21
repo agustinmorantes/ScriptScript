@@ -14,6 +14,7 @@ const int main(const int argumentCount, const char ** arguments) {
 	state.program = NULL;
 	state.result = 0;
 	state.succeed = false;
+	state.errorCount = 0;
 
 	// Inicializar tabla de símbolos.
 	symtable_init();
@@ -31,11 +32,12 @@ const int main(const int argumentCount, const char ** arguments) {
 			// La variable "succeed" es la que setea Bison al identificar el símbolo
 			// inicial de la gramática satisfactoriamente.
 			if (state.succeed) {
-				LogInfo("La compilacion fue exitosa.");
+				LogInfo("La compilación fue exitosa.");
 				Generator(state.result);
 			}
 			else {
-				LogError("Se produjo un error en la aplicacion.");
+				LogError("Se produjeron %d errores en la compilación.", state.errorCount);
+				symtable_free();
 				return -1;
 			}
 			break;

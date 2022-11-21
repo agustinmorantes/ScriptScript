@@ -22,13 +22,14 @@ void symtable_free() {
 
 bool symtable_exists(const char* id) {
     char* key = cstrdup(id);
-    bool ret = hashmap_get(m, key, strlen(key), NULL);
+    uintptr_t val;
+    bool ret = hashmap_get(m, key, strlen(key), &val);
     free(key);
     return ret;
 }
 
 SymtableEntry* symtable_add(const char* id) {
-    if (symtable_exists(id)) return NULL;
+    if (symtable_exists(id)) return symtable_get(id);
 
     char* key = cstrdup(id);
     SymtableEntry* entry = calloc(1,sizeof(SymtableEntry));
