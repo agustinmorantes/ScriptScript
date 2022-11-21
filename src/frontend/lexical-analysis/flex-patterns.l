@@ -2,7 +2,6 @@
 
 #include "flex-actions.h"
 
-int return_to = 0;
 %}
 
 /* Obliga a crear una regla explícita para manejar lexemas desconocidos. */
@@ -13,6 +12,9 @@ int return_to = 0;
 
 /* Dispone una variable global "yylineno" con el número de línea actual. */
 %option yylineno
+
+/* Habilita el stack de contextos de flex */
+%option stack
 
 /* Contextos de Flex. */
 %x COMMENT
@@ -39,7 +41,7 @@ identifier      {alpha}{alphanumeric}*
 
 <BODY>\\.							        { return TextCharacterPatternAction(&yytext[1], yyleng); }
 <BODY>"}"								    { BEGIN(INITIAL); return CloseBlockPatternAction(yytext); }
-<BODY>"@"               				    { return_to = FORK; BEGIN(FORK); return BeginForkPatternAction(yytext); }
+<BODY>"@"               				    { BEGIN(FORK); return BeginForkPatternAction(yytext); }
 <BODY>"["                                   { BEGIN(INITIAL); return BeginTagPatternAction(yytext); }
 <BODY>"("									{ return OpenParenthesisPatternAction(yytext); }
 <BODY>")"								    { return CloseParenthesisPatternAction(yytext); }
@@ -50,11 +52,11 @@ identifier      {alpha}{alphanumeric}*
 <BODY>.                                     { return UnknownPatternAction(yytext, yyleng); }
 
 
-<FORK>":"                                   { return_to = INITIAL; BEGIN(BODY); return ColonPatternAction(yytext); }
+<FORK>":"                                   { BEGIN(BODY); return ColonPatternAction(yytext); }
 
 
-\"                                          { BEGIN(STRING); return BeginStringPatternAction(yytext); } 
-<STRING>\"                                  { BEGIN(return_to); return EndStringPatternAction(yytext); } 
+\"                                          { yy_push_state(STRING); return BeginStringPatternAction(yytext); } 
+<STRING>\"                                  { yy_pop_state(); return EndStringPatternAction(yytext); } 
 <STRING>\\.                                 { return StringCharacterPatternAction(yytext, yyleng); }
 <STRING>\${identifier}                      { return InterpVariablePatternAction(yytext,yyleng); }
 <STRING>[^\"\n\$\\]*                          { return StringTextPatternAction(yytext, yyleng); }
