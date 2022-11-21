@@ -46,9 +46,9 @@ identifier      {alpha}{alphanumeric}*
 <BODY>"("									{ return OpenParenthesisPatternAction(yytext); }
 <BODY>")"								    { return CloseParenthesisPatternAction(yytext); }
 <BODY>\${identifier}          				{ return InterpVariablePatternAction(yytext,yyleng); }
-<BODY>"*"								    { return BoldPatternAction(yytext); }
-<BODY>"**"							        { return ItalicPatternAction(yytext); }
-<BODY>[^}@\[\(\)\$\*\\]*                    { return TextCharacterPatternAction(yytext, yyleng); }
+<BODY>"**"								    { return BoldPatternAction(yytext); }
+<BODY>"_"							        { return ItalicPatternAction(yytext); }
+<BODY>[^}@\[\(\)\$\*\\\_]*                    { return TextCharacterPatternAction(yytext, yyleng); }
 <BODY>.                                     { return UnknownPatternAction(yytext, yyleng); }
 
 

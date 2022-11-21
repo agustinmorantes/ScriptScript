@@ -1,0 +1,27 @@
+{
+id: start
+next: match stateP2 
+    when 1 then bloqueBien
+    default bloqueMal
+---
+# Personaje 1
+Hola, ¿cómo andás?
+}
+
+{
+id: bloqueBien
+---
+# Personaje 2
+Bien, ¿y vos?
+# Personaje 1
+Muy bien!
+}
+
+{
+id: bloqueMal
+---
+# Personaje 2
+No sé, más o menos.
+# Personaje 1
+Uhh, ¿Qué pasó?
+}

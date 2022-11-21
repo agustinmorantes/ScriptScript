@@ -166,8 +166,11 @@ Expression* FactorExprGrammarAction(Factor* factor) {
 //Conditionals -----------------------------------------------------------------------------
 Conditional* MatchCondGrammarAction(char* id, WhenThen* statements, Value* val) {
 	LogDebug("\tMatchCondGrammarAction(id, statements, val)");
+	symtable_add_with_type(id, STT_ENTRYTYPE_VAR);
+
 	Conditional* cond = (Conditional*) malloc(sizeof(Conditional));
 	cond->type = CDT_MATCH;
+	cond->matchCond = (MatchCond*) malloc(sizeof(MatchCond));
 	cond->matchCond->id = id;
 	cond->matchCond->whenThenStatements = statements;
 	cond->matchCond->defaultValue = val;
