@@ -36,9 +36,11 @@ Debería obtener el resultado correcto de evaluar el programa anterior:
   "header": {
     "id": "start"
   },
-  "body": {
-    "type": "text",
-    "text": "Bienvenidos todos a la coronación de mi hijo..."
-  }
+  "body": [
+    {
+      "type": "text",
+      "text": "Bienvenidos todos a la coronación de mi hijo..."
+    }
+  ]
 }
 ```
