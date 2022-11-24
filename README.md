@@ -75,3 +75,85 @@ Debería obtener el resultado correcto de evaluar el programa anterior:
   ]
 }
 ```
+
+## Algunas nociones de ScriptScript
+En esta sección procedemos a detallar algunas de las funcionalidades del lenguaje.
+
+### Estructura de un archivo .scsc
+Un archivo .scsc consiste de mútliples bloques declarados entre llaves:
+```markdown
+{
+/* Header */
+id: start
+next: bloque2
+---
+/* Body */
+Hola!
+}
+
+{
+/* Segundo bloque */
+id: bloque2
+---
+Hola!!
+}
+/* ... */
+```
+Estos bloques se separan en Header y Body.
+En la sección del Header se agregan todos los metadatos que identifican al bloque.
+El tag `id` es obligatorio, en donde se le da un nombre identificatorio al bloque, o se le asigna la palabra reservada `start` para indicar que es el primer bloque a ejecutar.  El tag `next` indica el id del siguiente bloque a mostrar.
+
+En la sección del Body se inserta texto con formato Markdown, que será el que representa al diálogo.
+Aquí se pueden utilizar variables con el símbolo `$` de la forma: `$thisIsAVariable`, y también se puede formatear el texto con sintáxis Markdown.
+
+### Condicionales
+Se pueden utilizar los condicionales `if` y `match` para dar valores condicionales, por ejemplo para elegir el siguiente diálogo a mostrar dependiendo del valor de una variable:
+```markdown
+{
+id: start
+next: bloque2 if var is true else bloque3
+---
+}
+/* etc. */
+```
+```markdown
+{
+id: start
+next: match var 
+      when 2 then bloque2
+      when 3 then bloque3
+      default bloque4
+---
+}
+/* etc. */
+```
+
+### Bloques de decisión
+Otra funcionalidad es la de insertar decisiones para el usuario en el diálogo.
+Esto se hace indicando una variable en el header de la forma `output: var`,
+y luego en el texto insertando una serie de decisiones de la siguiente forma:
+
+```markdown
+{
+id: start
+output: var
+---
+@ 1 : Esta es la decisión 1
+@ 2 : Esta es la decisión 2
+@ 3 : Esta es la decisión 3
+/* etc. */
+}
+/* etc. */
+```
+El valor que figura a la derecha del símbolo `:` Es el prompt que el usuario elige, mientras que el valor que figura a la izquierda es el que se inserta en la variable si el usuario toma esa rama de la decisión.
+
+### Tags
+Por último está la funcionalidad de tags, que permiten añadir metadatos dentro del texto, similar a los operadores para formato de Markdown
+```markdown
+{
+id: start
+---
+Buenas, [wiggle](¿Cómo va?)
+}
+
+```
