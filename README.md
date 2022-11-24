@@ -40,7 +40,7 @@ Luego se deberá abrir la solución generada `bin\Compiler.sln` con el IDE _Micr
 
 Para compilar un programa, primero cree un archivo vacío denominado `program` (o el nombre que desee), como por ejemplo:
 
-```
+```markdown
 {
 id: start
 ---
@@ -62,7 +62,7 @@ user@machine:path/ $ script\start.bat program
 
 Debería obtener el resultado correcto de evaluar el programa anterior:
 
-```
+```json
 {
   "header": {
     "id": "start"
